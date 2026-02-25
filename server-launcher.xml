@@ -1,0 +1,12 @@
+<service>
+  <id>nereohub</id>
+  <name>NereoHub Task Manager</name>
+  <description>Background server monitoring .md files via python -m nereohub</description>
+  
+  <executable>python</executable>
+  
+  <arguments>-m nereohub</arguments>
+  
+  <log mode="roll"></log>
+  <onfailure action="restart" delay="10 sec"/>
+</service>

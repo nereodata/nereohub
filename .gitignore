@@ -1,0 +1,21 @@
+# Test and build output
+output/
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Python
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.coverage
+htmlcov/
+
+# IDE / OS
+.idea/
+.vscode/
+*.swp
+.DS_Store
+server-launcher.exe
+server-launcher.wrapper.log
