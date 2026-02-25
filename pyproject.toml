@@ -1,0 +1,51 @@
+[build-system]
+requires = ["setuptools>=61", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nereohub"
+version = "0.1.0"
+description = "Multi-project task and anomaly hub: aggregate and prioritize tasks from multiple repos."
+readme = "README.md"
+requires-python = ">=3.9"
+license = { text = "MIT" }
+authors = [{ name = "NereoHub" }]
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.22.0",
+    "pyyaml>=6.0",
+    "platformdirs>=3.0.0",
+    "fpdf2>=2.7.0",
+    "markdown2>=2.4.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=7.0",
+    "pytest-cov>=4.0",
+    "pytest-bdd>=7.0",
+    "httpx>=0.24",
+]
+
+[project.scripts]
+nereohub = "nereohub.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["nereohub*"]
+
+[tool.setuptools.package-data]
+nereohub = ["static/*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+python_functions = ["test_*"]
+addopts = "-v"
+
+[tool.coverage.run]
+source = ["nereohub"]
+omit = ["nereohub/__main__.py", "tests/*"]
+
+[tool.coverage.report]
+exclude_lines = ["pragma: no cover", "def __repr__", "raise NotImplementedError"]

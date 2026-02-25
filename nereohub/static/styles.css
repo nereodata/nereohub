@@ -1,0 +1,1298 @@
+:root {
+    /* Nereodata palette */
+    --bg-color: #EEEFEE;
+    --card-bg: rgba(255, 255, 255, 0.95);
+    --accent-primary: #219EBC;
+    --accent-secondary: #1D6FA3;
+    --error: #EE6C4D;
+    --warning: #E0B354;
+    --text-primary: #16374E;
+    --text-secondary: #48738C;
+    --border: rgba(22, 55, 78, 0.15);
+    --glass-effect: blur(12px) saturate(180%);
+
+    --status-completed: #55A878;
+    --status-todo: #48738C;
+    --status-active: #219EBC;
+    --status-blocked: #EE6C4D;
+}
+
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+body {
+    background-color: var(--bg-color);
+    color: var(--text-primary);
+    display: flex;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+
+/* Sidebar */
+.sidebar {
+    width: 260px;
+    background: #16374E;
+    border-right: 1px solid rgba(255, 255, 255, 0.08);
+    padding: 2rem 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+    position: sticky;
+    top: 0;
+    height: 100vh;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: -0.3px;
+}
+
+.logo-icon {
+    width: 2rem;
+    height: 2rem;
+    object-fit: contain;
+    filter: brightness(0) invert(1);
+}
+
+.logo-text {
+    color: #EEEFEE;
+}
+
+.nav-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+}
+
+.nav-item {
+    padding: 0.8rem 1rem;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+    color: rgba(238, 239, 238, 0.85);
+    font-weight: 500;
+}
+
+.nav-item:hover,
+.nav-item.active {
+    background: rgba(33, 158, 188, 0.25);
+    color: #EEEFEE;
+}
+
+.nav-item i {
+    font-size: 1.1rem;
+}
+
+.project-filter-section {
+    margin-bottom: 0.5rem;
+}
+.filter-label {
+    display: block;
+    font-size: 0.75rem;
+    color: rgba(238, 239, 238, 0.7);
+    margin-bottom: 0.25rem;
+}
+.filter-project-select {
+    width: 100%;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    font-size: 0.9rem;
+}
+
+/* Sidebar: texto claro sobre fondo oscuro */
+.sidebar .filter-project-select {
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    background: rgba(255, 255, 255, 0.06);
+    color: #EEEFEE;
+}
+
+/* Vistas principales: texto oscuro sobre fondo claro */
+#filter-project-list,
+#filter-project-plan {
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+}
+
+/* Opciones del desplegable: texto oscuro sobre fondo claro */
+.sidebar select option,
+.filter-project-select option,
+#filter-project option,
+#filter-project-list option,
+#filter-project-plan option {
+    color: #16374E;
+    background: white;
+}
+
+/* Projects modal */
+.projects-modal-content {
+    max-width: 560px;
+}
+.projects-modal-content .modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+.projects-modal-content .modal-header h2 {
+    font-size: 1.25rem;
+}
+.projects-modal-body h3 {
+    font-size: 0.95rem;
+    margin-bottom: 0.75rem;
+    color: var(--text-secondary);
+}
+.add-project-form .form-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+.add-project-form input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+.form-hint {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 1rem;
+}
+.form-hint code {
+    background: rgba(0,0,0,0.2);
+    padding: 0.1rem 0.3rem;
+    border-radius: 4px;
+}
+.projects-list-section {
+    margin-top: 1.5rem;
+}
+.projects-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.projects-list li {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0.6rem 0.75rem;
+    border-radius: 6px;
+    background: rgba(255,255,255,0.05);
+    margin-bottom: 0.5rem;
+}
+.projects-list li .project-info {
+    font-weight: 500;
+}
+.projects-list li .project-root {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-top: 0.15rem;
+}
+.projects-list li .project-actions {
+    display: flex;
+    gap: 0.5rem;
+}
+.projects-list li .btn-icon {
+    padding: 0.35rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    background: transparent;
+    color: var(--text-secondary);
+}
+.projects-list li .btn-icon:hover {
+    background: rgba(255,255,255,0.1);
+    color: var(--accent-primary);
+}
+.projects-list li .btn-icon.delete:hover {
+    color: var(--error);
+}
+.project-name-with-color {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.project-color-swatch {
+    width: 1rem;
+    height: 1rem;
+    border-radius: 4px;
+    flex-shrink: 0;
+    border: 1px solid rgba(255,255,255,0.3);
+}
+.project-color-label {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+    white-space: nowrap;
+}
+.project-color-palette-wrap {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+.project-color-palette {
+    display: inline-flex;
+    gap: 0.35rem;
+    flex-wrap: wrap;
+}
+.project-palette-chip {
+    width: 1.5rem;
+    height: 1.5rem;
+    border-radius: 6px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: transform 0.12s ease, border-color 0.12s ease, box-shadow 0.12s ease;
+}
+.project-palette-chip:hover {
+    transform: scale(1.12);
+    border-color: rgba(255,255,255,0.4);
+}
+.project-palette-chip.selected {
+    border-color: rgba(255,255,255,0.9);
+    box-shadow: 0 0 0 1px rgba(0,0,0,0.2);
+}
+.edit-project-panel {
+    margin-bottom: 1rem;
+}
+.edit-project-form .form-row {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    margin-bottom: 0.5rem;
+}
+.edit-project-form input[type="text"] {
+    flex: 1;
+    min-width: 120px;
+    padding: 0.5rem 0.75rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+}
+.edit-project-actions {
+    display: flex;
+    gap: 0.75rem;
+    margin-top: 1rem;
+}
+.btn-secondary {
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-secondary);
+    cursor: pointer;
+    font-size: 0.9rem;
+}
+.btn-secondary:hover {
+    background: rgba(255,255,255,0.08);
+    color: var(--text-primary);
+}
+.form-row-main {
+    align-items: center;
+}
+.issue-card .card-project-header {
+    margin-bottom: 0.35rem;
+}
+
+.no-projects-hint {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+    text-align: center;
+    color: var(--text-secondary);
+}
+.no-projects-hint p {
+    margin-bottom: 0.5rem;
+}
+.no-projects-hint strong {
+    color: var(--accent-primary);
+}
+
+/* Main Content */
+main {
+    flex: 1;
+    padding: 2rem 3rem;
+    max-width: 1800px;
+    margin: 0 auto;
+    width: 100%;
+}
+
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2.5rem;
+}
+
+.header h1 {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 3rem;
+}
+
+.stat-card {
+    background: var(--card-bg);
+    backdrop-filter: var(--glass-effect);
+    border: 1px solid var(--border);
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+}
+
+.stat-card .label {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 0.5rem;
+}
+
+.stat-card .value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--text-primary);
+}
+
+
+/* Filters */
+.filters {
+    display: flex;
+    gap: 1rem;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.filter-group {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: var(--card-bg);
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+}
+
+select {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    cursor: pointer;
+}
+
+
+/* Data Table / Grid */
+.content-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: 1.5rem;
+}
+
+
+/* Sortable / Drag styles */
+.issue-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease;
+    cursor: grab;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    user-select: none;
+    border-left: 4px solid var(--status-color, transparent);
+}
+/* Project color: solo en el texto del proyecto */
+.issue-card .card-project-badge {
+    display: inline-block;
+    padding: 0.2rem 0.5rem;
+    border-radius: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: white;
+    background: var(--text-secondary);
+}
+
+.issue-card.status-completed,
+.issue-card.status-done,
+.issue-card.status-closed,
+.issue-card.status-completada,
+.issue-card.status-completado {
+    --status-color: var(--status-completed);
+}
+
+.issue-card.status-backlog,
+.issue-card.status-open,
+.issue-card.status-pending,
+.issue-card.status-por-empezar,
+.issue-card.status-pendiente {
+    --status-color: var(--status-todo);
+}
+
+.issue-card.status-in-progress,
+.issue-card.status-in_progress,
+.issue-card.status-planned,
+.issue-card.status-en-marcha,
+.issue-card.status-en-curso {
+    --status-color: var(--status-active);
+}
+
+.issue-card.status-blocked,
+.issue-card.status-bloqueada,
+.issue-card.status-bloqueado {
+    --status-color: var(--status-blocked);
+}
+
+.issue-card:active {
+    cursor: grabbing;
+}
+
+.issue-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    border-color: var(--status-color);
+}
+
+.issue-card.dragging {
+    opacity: 0.3;
+    border: 2px dashed var(--accent-secondary);
+}
+
+.issue-card.over {
+    border-top: 4px solid var(--accent-secondary);
+    transform: translateY(4px);
+    transition: all 0.1s ease;
+}
+
+.plan-grid.over {
+    background: rgba(88, 166, 255, 0.05);
+    outline: 2px dashed var(--accent-secondary);
+    outline-offset: -4px;
+}
+
+.issue-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.issue-id {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.05);
+    padding: 2px 8px;
+    border-radius: 4px;
+}
+
+.btn-copy-id {
+    background: transparent;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    color: var(--text-secondary);
+    cursor: pointer;
+    padding: 3px 6px;
+    border-radius: 4px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    font-size: 0.7rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0.5;
+    margin-left: 4px;
+}
+
+.btn-copy-id:hover {
+    background: rgba(5, 150, 105, 0.15);
+    border-color: rgba(5, 150, 105, 0.3);
+    color: var(--accent-primary);
+    opacity: 1;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.btn-copy-id:active {
+    transform: translateY(0);
+    box-shadow: none;
+}
+
+.btn-copy-id i {
+    font-size: 0.7rem;
+}
+
+.priority-badge {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    padding: 2px 8px;
+    border-radius: 20px;
+}
+
+.priority-critical {
+    background: rgba(248, 81, 73, 0.2);
+    color: #ff7b72;
+    border: 1px solid rgba(248, 81, 73, 0.4);
+}
+
+.priority-high {
+    background: rgba(210, 153, 34, 0.2);
+    color: #d29922;
+    border: 1px solid rgba(210, 153, 34, 0.4);
+}
+
+.priority-medium {
+    background: rgba(88, 166, 255, 0.2);
+    color: #58a6ff;
+    border: 1px solid rgba(88, 166, 255, 0.4);
+}
+
+.priority-low {
+    background: rgba(139, 148, 158, 0.2);
+    color: #8b949e;
+    border: 1px solid rgba(139, 148, 158, 0.4);
+}
+
+.issue-title {
+    font-size: 1.1rem;
+    font-weight: 600;
+    line-height: 1.4;
+    color: var(--text-primary);
+}
+
+.issue-footer {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-top: auto;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+}
+
+.status-badge {
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+.status-open .status-dot,
+.status-backlog .status-dot,
+.status-pending .status-dot,
+.status-por-empezar .status-dot,
+.status-pendiente .status-dot {
+    background: var(--status-todo);
+}
+
+.status-done .status-dot,
+.status-closed .status-dot,
+.status-completed .status-dot,
+.status-completada .status-dot,
+.status-completado .status-dot {
+    background: var(--status-completed);
+}
+
+.status-in-progress .status-dot,
+.status-in_progress .status-dot,
+.status-planned .status-dot,
+.status-en-marcha .status-dot,
+.status-en-curso .status-dot {
+    background: var(--status-active);
+}
+
+.status-blocked .status-dot,
+.status-bloqueada .status-dot,
+.status-bloqueado .status-dot {
+    background: var(--status-blocked);
+}
+
+.package-tag {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-style: italic;
+}
+
+
+/* Animations */
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(10px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+}
+
+.issue-card {
+    animation: fadeIn 0.3s ease forwards;
+    border-left: 4px solid var(--status-color, transparent);
+}
+
+
+/* Modal */
+.modal-overlay {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    backdrop-filter: blur(5px);
+    z-index: 1000;
+    justify-content: center;
+    align-items: center;
+}
+
+.modal-content {
+    background: #161b22;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    width: 90%;
+    max-width: 900px;
+    max-height: 90vh;
+    padding: 2rem;
+    position: relative;
+    overflow-y: auto;
+    box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5);
+}
+
+.close-modal {
+    position: absolute;
+    top: 1rem;
+    right: 1.5rem;
+    font-size: 2rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+}
+
+.close-modal:hover {
+    color: white;
+}
+
+
+/* Markdown Styles inside Modal */
+.markdown-body {
+    color: var(--text-primary);
+    font-size: 1rem;
+    line-height: 1.6;
+}
+
+.markdown-body h1,
+.markdown-body h2,
+.markdown-body h3 {
+    margin-top: 1.5rem;
+    margin-bottom: 1rem;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border);
+    padding-bottom: 0.3rem;
+}
+
+.markdown-body h1 {
+    font-size: 1.8em;
+}
+
+.markdown-body h2 {
+    font-size: 1.4em;
+}
+
+.markdown-body h3 {
+    font-size: 1.2em;
+    border-bottom: none;
+}
+
+.markdown-body p {
+    margin-bottom: 1rem;
+}
+
+.markdown-body ul,
+.markdown-body ol {
+    margin-left: 2rem;
+    margin-bottom: 1rem;
+}
+
+.markdown-body code {
+    background: rgba(110, 118, 129, 0.4);
+    padding: 0.2rem 0.4rem;
+    border-radius: 6px;
+    font-family: monospace;
+    font-size: 0.9em;
+}
+
+.markdown-body pre {
+    background: #0d1117;
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.markdown-body pre code {
+    background: transparent;
+    padding: 0;
+}
+
+.markdown-body table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-bottom: 1rem;
+}
+
+.markdown-body th,
+.markdown-body td {
+    padding: 0.5rem 1rem;
+    border: 1px solid var(--border);
+}
+
+.markdown-body th {
+    background: rgba(48, 54, 61, 0.5);
+    font-weight: 600;
+}
+
+.markdown-body a {
+    color: var(--accent-secondary);
+    text-decoration: none;
+}
+
+.markdown-body a:hover {
+    text-decoration: underline;
+}
+
+
+/* Plan View */
+.plan-section {
+    margin-bottom: 3rem;
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 2rem;
+}
+
+.btn-save {
+    background: var(--accent-primary);
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.btn-save:hover {
+    filter: brightness(1.1);
+}
+
+.btn-export {
+    background: rgba(88, 166, 255, 0.1);
+    color: var(--accent-secondary);
+    border: 1px solid rgba(88, 166, 255, 0.3);
+    padding: 0.5rem 1rem;
+    border-radius: 6px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: all 0.2s ease;
+    font-size: 0.85rem;
+}
+
+.btn-export:hover {
+    background: var(--accent-secondary);
+    color: white;
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 15px rgba(88, 166, 255, 0.3);
+}
+
+
+/* Metadata v3.0 */
+.progress-container {
+    width: 100%;
+    height: 8px;
+    background: rgba(48, 54, 61, 0.4);
+    border-radius: 10px;
+    margin-top: 0.5rem;
+    overflow: hidden;
+}
+
+.progress-bar {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent-secondary), var(--accent-primary));
+    border-radius: 10px;
+    transition: width 0.3s ease;
+}
+
+.meta-info {
+    display: flex;
+    gap: 1rem;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+}
+
+.weight-tag {
+    color: var(--warning);
+    font-weight: 600;
+}
+
+.project-tag {
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-right: 0.4rem;
+}
+.version-tag {
+    color: var(--accent-secondary);
+    font-weight: 600;
+}
+
+.parent-tag {
+    background: rgba(88, 166, 255, 0.1);
+    color: var(--accent-secondary);
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 0.7rem;
+}
+
+.issue-card .effort-stats {
+    display: flex;
+    justify-content: space-between;
+    font-size: 0.7rem;
+    color: var(--text-secondary);
+    margin-top: 0.2rem;
+}
+
+.issue-card.master-card {
+    background: rgba(88, 166, 255, 0.05);
+}
+
+
+/* Plan View - Version Grouping */
+.version-title {
+    font-size: 1.4rem;
+    color: var(--accent-secondary);
+    margin-bottom: 1.5rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 2px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.edit-row {
+    display: flex;
+    gap: 0.5rem;
+    margin-bottom: 0.8rem;
+    align-items: center;
+    background: rgba(0, 0, 0, 0.2);
+    padding: 0.5rem;
+    border-radius: 6px;
+    flex-wrap: wrap;
+}
+
+.edit-row label {
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    font-weight: 600;
+}
+
+.edit-input {
+    background: rgba(22, 27, 34, 0.8);
+    border: 1px solid var(--border);
+    color: white;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-size: 0.85rem;
+    width: 60px;
+    transition: border-color 0.2s;
+}
+
+.edit-input:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+}
+
+.edit-input.version-input {
+    width: 80px;
+}
+
+.meta-row {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 0.5rem;
+}
+
+.meta-row .issue-id {
+    cursor: pointer;
+}
+
+.meta-row .issue-id:hover {
+    color: white;
+    text-decoration: underline;
+}
+
+.filter-input {
+    background: transparent;
+    border: none;
+    color: var(--text-primary);
+    font-size: 0.9rem;
+    outline: none;
+    padding: 2px 5px;
+    width: 120px;
+}
+
+.filter-input::placeholder {
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.filter-group:focus-within {
+    border-color: var(--accent-secondary);
+    box-shadow: 0 0 5px rgba(88, 166, 255, 0.2);
+}
+
+.type-badge {
+    font-size: 0.65rem;
+    padding: 2px 6px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    font-weight: 700;
+}
+
+.type-funcional {
+    background: #2ea043;
+    color: white;
+}
+
+.type-infra {
+    background: #8250df;
+    color: white;
+}
+
+.type-despliegue {
+    background: #d29922;
+    color: black;
+}
+
+.type-tools {
+    background: #3081f7;
+    color: white;
+}
+
+.type-diseño {
+    background: #db61a2;
+    color: white;
+}
+
+.modal-content a {
+    color: var(--accent-secondary);
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.modal-content a:hover {
+    text-decoration: underline;
+}
+
+/* Plan View Layout */
+.plan-layout {
+    display: flex;
+    gap: 2rem;
+    position: relative;
+    transition: all 0.3s ease;
+}
+
+.plan-main-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.backlog-sidebar {
+    width: 350px;
+    background: rgba(22, 27, 34, 0.98);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    height: calc(100vh - 250px);
+    position: sticky;
+    top: 2rem;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    box-shadow: -10px 0 30px rgba(0, 0, 0, 0.5);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.backlog-sidebar.closed {
+    width: 0;
+    margin-left: -2rem;
+    opacity: 0;
+    pointer-events: none;
+}
+
+.sidebar-header {
+    padding: 1.2rem;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: rgba(88, 166, 255, 0.05);
+}
+
+.sidebar-header h3 {
+    font-size: 1rem;
+    color: var(--accent-secondary);
+}
+
+.sidebar-content {
+    flex: 1;
+    overflow-y: auto;
+    padding: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+.btn-toggle-sidebar {
+    background: var(--accent-secondary);
+    color: white;
+    border: none;
+    padding: 0.6rem 1.2rem;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1.5rem;
+    transition: all 0.2s;
+}
+
+.btn-toggle-sidebar:hover {
+    filter: brightness(1.1);
+    transform: translateY(-2px);
+}
+
+.sidebar-content .issue-card {
+    padding: 1rem;
+    font-size: 0.9rem;
+}
+
+.sidebar-content .issue-title {
+    font-size: 0.95rem;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    cursor: pointer;
+    line-height: 1;
+}
+
+.btn-close:hover {
+    color: white;
+}
+
+/* Status Chips Filter */
+.status-chips-container {
+    display: flex;
+    gap: 0.5rem;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.status-chip-label {
+    background: rgba(48, 54, 61, 0.5);
+    border: 1px solid var(--border);
+    padding: 0.3rem 0.6rem;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    cursor: pointer;
+    color: var(--text-secondary);
+    transition: all 0.2s;
+    user-select: none;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.status-chip-label:hover {
+    border-color: var(--accent-secondary);
+    color: white;
+}
+
+.status-chip-label input {
+    cursor: pointer;
+}
+
+.status-chip-label:has(input:checked) {
+    background: rgba(88, 166, 255, 0.15);
+    border-color: var(--accent-secondary);
+    color: white;
+}
+
+/* Sidebar Search */
+.sidebar-search {
+    position: relative;
+    margin-top: 0.8rem;
+}
+
+.sidebar-search i {
+    position: absolute;
+    left: 10px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.sidebar-search input {
+    width: 100%;
+    background: var(--bg-color);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 6px 10px 6px 30px;
+    font-size: 0.85rem;
+    color: var(--text-primary);
+    transition: border-color 0.2s;
+}
+
+.sidebar-search input:focus {
+    outline: none;
+    border-color: var(--accent-secondary);
+}
+
+/* Light Mode Tweaks */
+.backlog-sidebar {
+    background: white;
+    box-shadow: -5px 0 20px rgba(22, 55, 78, 0.08);
+}
+
+.modal-content {
+    background: white;
+}
+
+.issue-card {
+    background: white;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.issue-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.edit-row {
+    background: rgba(0, 0, 0, 0.03);
+}
+
+.edit-input {
+    background: white;
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+}
+
+/* Final Light Mode Fixes */
+.close-modal:hover,
+.btn-close:hover {
+    color: var(--accent-secondary) !important;
+}
+
+.sidebar .nav-item:hover,
+.sidebar .nav-item.active {
+    background: rgba(33, 158, 188, 0.25) !important;
+    color: #EEEFEE !important;
+}
+
+.sidebar-header {
+    background: rgba(33, 158, 188, 0.06);
+}
+
+.issue-id {
+    background: rgba(0, 0, 0, 0.05);
+    color: var(--text-secondary);
+}
+
+.markdown-body pre {
+    background: var(--bg-color);
+    border: 1px solid var(--border);
+}
+
+/* Final Polish: Legibility and Premium Buttons */
+.status-chip-label {
+    background: var(--bg-color) !important;
+    border: 1px solid var(--border) !important;
+    color: var(--text-secondary) !important;
+}
+
+.status-chip-label:hover {
+    border-color: var(--accent-secondary) !important;
+    color: var(--text-primary) !important;
+}
+
+.status-chip-label:has(input:checked) {
+    background: var(--accent-secondary) !important;
+    color: white !important;
+    border-color: var(--accent-secondary) !important;
+    box-shadow: 0 2px 4px rgba(2, 132, 199, 0.2);
+}
+
+.btn-export {
+    background: white !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border) !important;
+    border-radius: 8px !important;
+    padding: 0.6rem 1.2rem !important;
+    transition: all 0.2s ease !important;
+    display: inline-flex !important;
+    align-items: center !important;
+    gap: 0.5rem !important;
+}
+
+.btn-export:hover {
+    background: rgba(33, 158, 188, 0.06) !important;
+    border-color: var(--accent-secondary) !important;
+    color: var(--accent-secondary) !important;
+}
+
+.version-title {
+    color: var(--text-primary) !important;
+    border-bottom-color: var(--border) !important;
+}
+
+.sidebar-header h3 {
+    color: var(--text-primary) !important;
+}

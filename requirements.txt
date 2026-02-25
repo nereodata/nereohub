@@ -1,0 +1,8 @@
+# Runtime dependencies. Prefer: pip install -e .
+# Or: pip install -r requirements.txt
+fastapi>=0.100.0
+uvicorn[standard]>=0.22.0
+pyyaml>=6.0
+platformdirs>=3.0.0
+fpdf2>=2.7.0
+markdown2>=2.4.0
