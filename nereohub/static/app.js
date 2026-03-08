@@ -997,7 +997,7 @@ function renderBacklogSidebar() {
             <div class="edit-row">
                 <label>Ver:</label> ${versionInput}
                 <label>W:</label> ${weightInput}
-                <button class="btn-icon" style="margin-left:auto; color:var(--primary-color);" onclick="planTask('${item.id}', '${itemProjectId.replace(/'/g, "\\'")}', event)" title="Mover al Plan (Planned)"><i class="fas fa-calendar-plus"></i></button>
+                <button class="btn-icon" style="margin-left:auto; margin-right:4px;" onclick="planTask('${item.id}', '${itemProjectId.replace(/'/g, "\\'")}', event)" title="Mover al Plan (Planned)"><i class="fas fa-arrow-right"></i></button>
             </div>
             <h4 class="issue-title">${item.title}</h4>
             <div class="issue-footer">
