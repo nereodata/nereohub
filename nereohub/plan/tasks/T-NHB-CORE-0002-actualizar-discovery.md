@@ -5,11 +5,11 @@ type: feature
 parent_id: T-NHB-0001
 weight: 100
 version: "v0.2.0"
-status: in_progress
+status: completed
 effort_unit: h
 estimated_effort: 2
-remaining_effort: 2
-actual_effort: 0
+remaining_effort: 0
+actual_effort: 1
 created_at: 2026-03-08
 updated_at: 2026-03-08
 ---

@@ -6,6 +6,7 @@ User configuration for NereoHub. Stored in OS app data directory, not in the rep
 
 For tests, set NEREOHUB_DATA_DIR to a temporary directory.
 """
+
 import os
 from pathlib import Path
 from typing import List
@@ -22,6 +23,7 @@ def get_app_data_dir() -> Path:
         return Path(env_dir).resolve()
     try:
         from platformdirs import user_data_dir
+
         return Path(user_data_dir(HUB_NAME, ""))
     except ImportError:
         if os.name == "nt":
@@ -144,3 +146,36 @@ def delete_project(root: str) -> None:
         raise ValueError("Proyecto no encontrado.")
     data["projects"] = new_list
     save_config(data)
+
+
+def load_project_task_config(root: Path) -> dict:
+    """Load project-specific task_config.yaml from its root."""
+    path = Path(root) / "task_config.yaml"
+    defaults = {
+        "project": {"prefix": "", "name": ""},
+        "levels": {
+            "master": {"id_prefix": "", "path": "plan/"},
+            "components": [],
+        },
+    }
+    if not path.exists():
+        return defaults
+
+    try:
+        with open(path, "r", encoding="utf-8") as f:
+            data = yaml.safe_load(f)
+            if data is None or not isinstance(data, dict):
+                return defaults
+            # Merge with defaults or ensure keys exist
+            if "project" not in data:
+                data["project"] = defaults["project"]
+            if "levels" not in data:
+                data["levels"] = defaults["levels"]
+            else:
+                if "master" not in data["levels"]:
+                    data["levels"]["master"] = defaults["levels"]["master"]
+                if "components" not in data["levels"]:
+                    data["levels"]["components"] = defaults["levels"]["components"]
+            return data
+    except Exception:
+        return defaults

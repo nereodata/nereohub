@@ -1,4 +1,5 @@
 """Unit tests for nereohub.discovery."""
+
 import pytest
 from pathlib import Path
 
@@ -67,3 +68,35 @@ def test_find_task_file_finds_by_stem(sample_project_root):
 def test_find_task_file_returns_none_unknown_id(sample_project_root):
     """find_task_file returns None when task not found."""
     assert find_task_file(sample_project_root, "T-NONE-999") is None
+
+
+def test_get_plan_search_dirs_with_config(tmp_path):
+    """get_plan_search_dirs uses values from task_config.yaml."""
+    # Define custom paths
+    (tmp_path / "custom_master").mkdir(parents=True)
+    (tmp_path / "src" / "core" / "plan").mkdir(parents=True)
+
+    config_content = """
+project:
+  prefix: PRJ
+levels:
+  master:
+    path: custom_master/
+  components:
+    - type: package
+      id_prefix: CORE
+      path: src/core/plan/
+"""
+    (tmp_path / "task_config.yaml").write_text(config_content, encoding="utf-8")
+
+    dirs = get_plan_search_dirs(tmp_path)
+    labels = [label for _, label in dirs]
+
+    assert "master" in labels
+    assert "CORE" in labels
+
+    master_path = next(d for d, l in dirs if l == "master")
+    core_path = next(d for d, l in dirs if l == "CORE")
+
+    assert str(master_path).replace("\\", "/").endswith("custom_master")
+    assert str(core_path).replace("\\", "/").endswith("src/core/plan")
