@@ -8,6 +8,25 @@ function getSelectedProject() {
     return el ? el.value : '';
 }
 
+function getFilterCriteria() {
+    const filterProject = getSelectedProject();
+    const statusContainer = document.getElementById('status-filter-container');
+    const selectedStatuses = statusContainer ? Array.from(statusContainer.querySelectorAll('input:checked')).map(cb => cb.value) : [];
+    const filterType = document.getElementById('filter-plan-type') ? document.getElementById('filter-plan-type').value : 'all';
+    const filterVersion = document.getElementById('filter-plan-version') ? document.getElementById('filter-plan-version').value.toLowerCase() : '';
+    const filterId = document.getElementById('filter-plan-id') ? document.getElementById('filter-plan-id').value.toLowerCase() : '';
+    const filterText = document.getElementById('filter-plan-text') ? document.getElementById('filter-plan-text').value.toLowerCase() : '';
+
+    return {
+        project: filterProject,
+        statuses: selectedStatuses,
+        type: filterType,
+        version: filterVersion,
+        id: filterId,
+        text: filterText
+    };
+}
+
 function getProjectColor(projectId) {
     if (!projectId) return '';
     const p = (projectData.projects || []).find(pr => pr.name === projectId);
@@ -279,13 +298,7 @@ async function exportPlanPDF() {
 }
 
 function getFilteredPlan(ignoreStatus = false) {
-    const filterProject = getSelectedProject();
-    const statusContainer = document.getElementById('status-filter-container');
-    const selectedStatuses = statusContainer ? Array.from(statusContainer.querySelectorAll('input:checked')).map(cb => cb.value) : [];
-    const filterType = document.getElementById('filter-plan-type').value;
-    const filterVersion = document.getElementById('filter-plan-version').value.toLowerCase();
-    const filterId = document.getElementById('filter-plan-id').value.toLowerCase();
-    const filterText = document.getElementById('filter-plan-text').value.toLowerCase();
+    const criteria = getFilterCriteria();
 
     // Map of normalized statuses to match filter values
     const statusMap = {
@@ -307,10 +320,10 @@ function getFilteredPlan(ignoreStatus = false) {
 
         let matchesStatus = ignoreStatus;
         if (!ignoreStatus) {
-            if (selectedStatuses.length === 0) {
+            if (criteria.statuses.length === 0) {
                 matchesStatus = false; // If nothing selected, show nothing
             } else {
-                matchesStatus = selectedStatuses.some(statusKey => {
+                matchesStatus = criteria.statuses.some(statusKey => {
                     if (itemStatus === statusKey) return true;
                     if (statusMap[statusKey] && statusMap[statusKey].includes(itemStatus)) return true;
                     return false;
@@ -318,15 +331,15 @@ function getFilteredPlan(ignoreStatus = false) {
             }
         }
 
-        const matchesType = filterType === 'all' || item.type === filterType || !item.type;
-        const matchesVersion = !filterVersion || (item.version && item.version.toLowerCase().includes(filterVersion));
-        const matchesId = !filterId || (item.id && item.id.toLowerCase().includes(filterId));
-        const matchesText = !filterText ||
-            (item.title && item.title.toLowerCase().includes(filterText)) ||
-            (item.id && item.id.toLowerCase().includes(filterText)) ||
-            (item.content_text && item.content_text.toLowerCase().includes(filterText));
+        const matchesType = criteria.type === 'all' || item.type === criteria.type || !item.type;
+        const matchesVersion = !criteria.version || (item.version && item.version.toLowerCase().includes(criteria.version));
+        const matchesId = !criteria.id || (item.id && item.id.toLowerCase().includes(criteria.id));
+        const matchesText = !criteria.text ||
+            (item.title && item.title.toLowerCase().includes(criteria.text)) ||
+            (item.id && item.id.toLowerCase().includes(criteria.text)) ||
+            (item.content_text && item.content_text.toLowerCase().includes(criteria.text));
 
-        const matchesProject = !filterProject || (item.project_id || item.project) === filterProject;
+        const matchesProject = !criteria.project || (item.project_id || item.project) === criteria.project;
 
         return matchesStatus && matchesType && matchesVersion && matchesId && matchesText && matchesProject;
     };
@@ -842,8 +855,8 @@ function renderPlan() {
             card.addEventListener('drop', handlePlanDrop);
 
             const pathEsc = (task.path || '').replace(/\\/g, '\\\\').replace(/'/g, "\\'");
-            const weightInput = `<input type="number" class="edit-input weight-input" value="${task.weight}" onchange="updateTask('${task.id}', 'weight', this.value, '${taskProjectId.replace(/'/g, "\\'")}')">`;
-            const versionInput = `<input type="text" class="edit-input version-input" value="${task.version}" onblur="updateTask('${task.id}', 'version', this.value, '${taskProjectId.replace(/'/g, "\\'")}')">`;
+            const weightInput = `<input type="number" class="edit-input weight-input" value="${task.weight}" onchange="updateTask('${task.id}', 'weight', this.value, '${taskProjectId.replace(/'/g, "\\'")}')" onclick="event.stopPropagation()">`;
+            const versionInput = `<input type="text" class="edit-input version-input" value="${task.version}" onblur="updateTask('${task.id}', 'version', this.value, '${taskProjectId.replace(/'/g, "\\'")}')" onkeydown="if(event.key==='Enter') this.blur();" onclick="event.stopPropagation()">`;
 
             card.innerHTML = `
                 ${taskProjectId ? `<div class="card-project-header"><span class="card-project-badge"${planProjectColor ? ` style="background:${escapeAttr(planProjectColor)}"` : ''}>${escapeHtml(taskProjectId)}</span></div>` : ''}
@@ -889,26 +902,46 @@ function renderBacklogSidebar() {
 
     container.innerHTML = '';
 
+    const criteria = getFilterCriteria();
     const anomaliesBase = projectData.anomalies || [];
-
-    // Backlog sidebar: general (master) tasks and bugs only, plus package bugs that have no general
     const masterIds = new Set((projectData.masters || []).map(m => m.id));
-    const filterProject = getSelectedProject();
 
-    const allMasters = projectData.masters || [];
-    const backlogMasters = allMasters.filter(t => {
-        const matchesProject = !filterProject || (t.project_id || t.project) === filterProject;
+    // Backlog sidebar items: must match project and general filters
+    const filterCommon = (item) => {
+        const matchesProject = !criteria.project || (item.project_id || item.project) === criteria.project;
         if (!matchesProject) return false;
+
+        const matchesType = criteria.type === 'all' || item.type === criteria.type || !item.type;
+        const matchesId = !criteria.id || (item.id && item.id.toLowerCase().includes(criteria.id));
+
+        const sidebarSearchInput = document.getElementById('backlog-sidebar-search');
+        const sidebarFilterText = sidebarSearchInput ? sidebarSearchInput.value.toLowerCase() : '';
+
+        let matchesText = true;
+        if (sidebarFilterText) {
+            matchesText = (item.title && item.title.toLowerCase().includes(sidebarFilterText)) ||
+                (item.id && item.id.toLowerCase().includes(sidebarFilterText)) ||
+                (item.content_text && item.content_text.toLowerCase().includes(sidebarFilterText));
+        } else {
+            matchesText = !criteria.text ||
+                (item.title && item.title.toLowerCase().includes(criteria.text)) ||
+                (item.id && item.id.toLowerCase().includes(criteria.text)) ||
+                (item.content_text && item.content_text.toLowerCase().includes(criteria.text));
+        }
+
+        return matchesProject && matchesType && matchesId && matchesText;
+    };
+
+    const backlogMasters = (projectData.masters || []).filter(t => {
+        if (!filterCommon(t)) return false;
         const hasNoVersion = !t.version || t.version.toLowerCase() === 'backlog';
         const status = (t.status || '').toLowerCase();
         const isBacklogLike = status === 'backlog' || status === 'todo' || status === 'open';
         return hasNoVersion || isBacklogLike;
     });
 
-    // Package bugs: only show if they have NO general (no parent_id in masters); otherwise the general is shown above
     const backlogBugs = anomaliesBase.filter(b => {
-        const matchesProject = !filterProject || (b.project_id || b.project) === filterProject;
-        if (!matchesProject) return false;
+        if (!filterCommon(b)) return false;
         const status = (b.status || '').toLowerCase();
         const isClosed = status === 'completed' || status === 'closed' || status === 'fixed' || status === 'superseded';
         const hasNoVersion = !b.version || b.version.toLowerCase() === 'backlog';
@@ -918,30 +951,7 @@ function renderBacklogSidebar() {
         return inBacklog && !hasGeneral;
     });
 
-    // Check search filter for bugs too since they aren't in getFilteredPlan
-    const sidebarSearchInput = document.getElementById('backlog-sidebar-search');
-    const sidebarFilterText = sidebarSearchInput ? sidebarSearchInput.value.toLowerCase() : '';
-
-    // Check main plan text filter if needed, but usually we want an independent search here
-    const filterText = document.getElementById('filter-plan-text').value.toLowerCase();
-
-    // Combine filters for sidebar items: must pass sidebar search OR (if sidebar search is empty) pass main text filter
-    const backlogItems = [...backlogMasters, ...backlogBugs].filter(item => {
-        const matchesSidebar = !sidebarFilterText ||
-            (item.title && item.title.toLowerCase().includes(sidebarFilterText)) ||
-            (item.id && item.id.toLowerCase().includes(sidebarFilterText)) ||
-            (item.content_text && item.content_text.toLowerCase().includes(sidebarFilterText));
-
-        // If sidebar search is being used, prioritize it
-        if (sidebarFilterText) return matchesSidebar;
-
-        // Fallback to main plan text filter
-        const matchesMain = !filterText ||
-            (item.title && item.title.toLowerCase().includes(filterText)) ||
-            (item.id && item.id.toLowerCase().includes(filterText)) ||
-            (item.content_text && item.content_text.toLowerCase().includes(filterText));
-        return matchesMain;
-    });
+    const backlogItems = [...backlogMasters, ...backlogBugs];
 
     // Sort by weight (ascending - lower weight = higher priority)
     backlogItems.sort((a, b) => (a.weight ?? 9999) - (b.weight ?? 9999));
@@ -972,6 +982,8 @@ function renderBacklogSidebar() {
         card.addEventListener('drop', handleBacklogSidebarDrop);
 
         const weightInput = `<input type="number" class="edit-input weight-input" value="${w}" onchange="updateTask('${item.id}', 'weight', this.value, '${itemProjectId.replace(/'/g, "\\'")}')" onclick="event.stopPropagation()">`;
+        const verVal = (item.version && item.version.toLowerCase() !== 'backlog') ? item.version : '';
+        const versionInput = `<input type="text" class="edit-input version-input" placeholder="vX.Y" value="${verVal}" onblur="updateTask('${item.id}', 'version', this.value, '${itemProjectId.replace(/'/g, "\\'")}')" onkeydown="if(event.key==='Enter') this.blur();" onclick="event.stopPropagation()">`;
 
         card.innerHTML = `
             ${itemProjectId ? `<div class="card-project-header"><span class="card-project-badge"${sidebarProjectColor ? ` style="background:${escapeAttr(sidebarProjectColor)}"` : ''}>${escapeHtml(itemProjectId)}</span></div>` : ''}
@@ -983,7 +995,9 @@ function renderBacklogSidebar() {
                 <span class="priority-badge ${priorityClass}">${item.priority || 'Medium'}</span>
             </div>
             <div class="edit-row">
+                <label>Ver:</label> ${versionInput}
                 <label>W:</label> ${weightInput}
+                <button class="btn-icon" style="margin-left:auto; color:var(--primary-color);" onclick="planTask('${item.id}', '${itemProjectId.replace(/'/g, "\\'")}', event)" title="Mover al Plan (Planned)"><i class="fas fa-calendar-plus"></i></button>
             </div>
             <h4 class="issue-title">${item.title}</h4>
             <div class="issue-footer">
@@ -1097,6 +1111,29 @@ async function updateTask(id, field, value, projectId) {
     } catch (e) {
         console.error(e);
         alert('Error connecting to server');
+    }
+}
+
+async function planTask(id, projectId, event) {
+    if (event) event.stopPropagation();
+    try {
+        const payload = { id, status: 'planned' };
+        if (projectId) payload.project_id = projectId;
+
+        const res = await fetch('/api/update_task', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+        });
+
+        if (res.ok) {
+            fetchData();
+        } else {
+            alert('Error al planificar la tarea');
+        }
+    } catch (e) {
+        console.error(e);
+        alert('Error de conexión');
     }
 }
 
