@@ -11,6 +11,7 @@ scenarios(
     str(FEATURES_DIR / "agregacion_datos.feature"),
     str(FEATURES_DIR / "api_datos.feature"),
     str(FEATURES_DIR / "configuracion_proyectos.feature"),
+    str(FEATURES_DIR / "descubrimiento_jerarquico.feature"),
 )
 
 # --- Fixture: client (reuse from root conftest) ---
@@ -291,3 +292,53 @@ def mensaje_project_id(bdd_context):
     """Assert detail mentions project_id."""
     detail = bdd_context["response"].json().get("detail", "")
     assert "project" in detail.lower()
+@given(parsers.parse('que existe un directorio de proyecto "{path}"'))
+def existe_directorio_vacio(path, tmp_path, bdd_context):
+    """Create a temporary directory for a project."""
+    project_root = tmp_path / "custom_project"
+    project_root.mkdir(parents=True, exist_ok=True)
+    bdd_context["project_root"] = str(project_root.resolve())
+
+
+@given(parsers.parse('existe un archivo "task_config.yaml" en la raiz del proyecto con:'))
+def existe_task_config(bdd_context, step):
+    """Create task_config.yaml in the project root."""
+    root = Path(bdd_context["project_root"])
+    (root / "task_config.yaml").write_text(step.text, encoding="utf-8")
+
+
+@given(parsers.parse('existe una tarea maestra en "{path}"'))
+def existe_tarea_maestra_en(path, bdd_context):
+    """Create a task file at the specified relative path."""
+    root = Path(bdd_context["project_root"])
+    task_path = root / path
+    task_path.parent.mkdir(parents=True, exist_ok=True)
+    task_path.write_text("""---
+id: T-CST-0001
+title: Custom Master
+status: backlog
+---
+""", encoding="utf-8")
+
+
+@given(parsers.parse('existe una tarea de componente en "{path}"'))
+def existe_tarea_comp_en(path, bdd_context):
+    """Create a component task file."""
+    root = Path(bdd_context["project_root"])
+    task_path = root / path
+    task_path.parent.mkdir(parents=True, exist_ok=True)
+    task_path.write_text("""---
+id: T-CST-CORE-0001
+title: Custom Core
+status: backlog
+parent_id: T-CST-0001
+---
+""", encoding="utf-8")
+
+
+@then(parsers.parse('"{key}" contiene una tarea con id "{task_id}"'))
+def key_contiene_tarea(key, task_id, bdd_context):
+    """Verify that a list in the response contains a task with the given ID."""
+    data = bdd_context["response"].json().get(key, [])
+    ids = [item.get("id") for item in data]
+    assert task_id in ids, f"Task {task_id} not found in {key}. Found: {ids}"

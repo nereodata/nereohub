@@ -5,4 +5,9 @@ project:
 levels:
   master:
     id_prefix: ""
-    path: plan
+    path: plan/
+  components:
+    - type: package
+      id_prefix: CORE
+      path: nereohub/plan/
+    - type: app
