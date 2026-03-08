@@ -5,11 +5,4 @@ project:
 levels:
   master:
     id_prefix: ""
-    path: plan/tasks/
-  components:
-    - type: package
-      id_prefix: PKG
-      path: nereohub/plan/
-    - type: app
-      id_prefix: HMI
-      path: app/{name}/docs/backlog/
+    path: plan
