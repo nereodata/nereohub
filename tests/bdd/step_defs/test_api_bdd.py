@@ -12,6 +12,7 @@ scenarios(
     str(FEATURES_DIR / "api_datos.feature"),
     str(FEATURES_DIR / "configuracion_proyectos.feature"),
     str(FEATURES_DIR / "descubrimiento_jerarquico.feature"),
+    str(FEATURES_DIR / "update_task_status.feature"),
 )
 
 # --- Fixture: client (reuse from root conftest) ---
@@ -342,3 +343,61 @@ def key_contiene_tarea(key, task_id, bdd_context):
     data = bdd_context["response"].json().get(key, [])
     ids = [item.get("id") for item in data]
     assert task_id in ids, f"Task {task_id} not found in {key}. Found: {ids}"
+
+
+# --- update_task_status.feature steps ---
+
+@given(parsers.parse('la tarea {task_id} tiene status "{status}"'))
+def tarea_tiene_status(task_id, status, sample_project_for_bdd, bdd_context):
+    """Ensure task file has the given status in frontmatter."""
+    bdd_context["project_root"] = str(sample_project_for_bdd.resolve())
+    task_path = sample_project_for_bdd / "plan" / f"{task_id}.md"
+    if not task_path.exists():
+        task_path.parent.mkdir(parents=True, exist_ok=True)
+        task_path.write_text(f"""---
+id: {task_id}
+title: Test task
+status: {status}
+weight: 10
+version: v0.2
+type: feature
+---
+
+# Content
+""", encoding="utf-8")
+    else:
+        content = task_path.read_text(encoding="utf-8")
+        import re
+        if re.search(r"^status:\s*.*$", content, re.MULTILINE):
+            content = re.sub(r"^status:\s*.*$", f"status: {status}", content, count=1, flags=re.MULTILINE)
+        else:
+            content = content.replace("---\n", f"---\nstatus: {status}\n", 1)
+        task_path.write_text(content, encoding="utf-8")
+
+
+@when(parsers.parse('hago POST a "/api/update_task" con id "{task_id}", project_id "{project_id}" y status "{status}"'))
+def post_update_task_status(task_id, project_id, status, client, bdd_context):
+    """POST /api/update_task with status."""
+    r = client.post("/api/update_task", json={"id": task_id, "project_id": project_id, "status": status})
+    bdd_context["response"] = r
+
+
+@then(parsers.parse('la tarea {task_id} tiene status "{expected_status}" en disco'))
+def tarea_status_en_disco(task_id, expected_status, sample_project_for_bdd, bdd_context):
+    """Assert task file on disk has the expected status."""
+    root = Path(bdd_context.get("project_root") or str(sample_project_for_bdd.resolve()))
+    from nereohub.discovery import find_task_file
+    task_file = find_task_file(root, task_id)
+    assert task_file, f"Task file for {task_id} not found"
+    content = task_file.read_text(encoding="utf-8")
+    import re
+    m = re.search(r"^status:\s*(.+)$", content, re.MULTILINE)
+    assert m, f"No status in frontmatter: {content[:200]}"
+    actual = m.group(1).strip().strip('"\'')
+    assert actual == expected_status, f"Expected status {expected_status}, got {actual}"
+
+
+@then(parsers.parse('la tarea {task_id} mantiene status "{expected_status}" en disco'))
+def tarea_mantiene_status(task_id, expected_status, sample_project_for_bdd, bdd_context):
+    """Same as tarea_status_en_disco - verify file was not modified."""
+    tarea_status_en_disco(task_id, expected_status, sample_project_for_bdd, bdd_context)

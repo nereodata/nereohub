@@ -401,6 +401,10 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                 plans.append(parsed)
         return plans
 
+    ALLOWED_STATUSES = frozenset(
+        {"backlog", "planned", "in_progress", "completed", "blocked"}
+    )
+
     @app.post("/api/update_task")
     async def update_task(task_data: dict = Body(...)):
         task_id = task_data.get("id")
@@ -409,6 +413,14 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             raise HTTPException(status_code=400, detail="Missing task ID")
         if not project_id:
             raise HTTPException(status_code=400, detail="Missing project_id")
+        if "status" in task_data:
+            status_val = (task_data.get("status") or "").strip().lower()
+            if status_val and status_val not in ALLOWED_STATUSES:
+                raise HTTPException(
+                    status_code=400,
+                    detail=f"Status '{task_data.get('status')}' not allowed. "
+                    f"Allowed: {', '.join(sorted(ALLOWED_STATUSES))}",
+                )
         projects = config.get_projects()
         project_root = None
         for p in projects:

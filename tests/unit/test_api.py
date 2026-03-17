@@ -107,3 +107,36 @@ def test_api_update_task_requires_project_id(client: TestClient):
         json={"id": "T-TEST-001"},
     )
     assert r.status_code == 400
+
+
+def test_api_update_task_status_success(client: TestClient, sample_project_root: Path):
+    """POST /api/update_task with valid status updates the markdown file."""
+    client.post(
+        "/api/projects",
+        json={"name": "TestProj", "root": str(sample_project_root)},
+    )
+    r = client.post(
+        "/api/update_task",
+        json={"id": "T-TEST-001", "project_id": "TestProj", "status": "planned"},
+    )
+    assert r.status_code == 200
+    assert r.json().get("status") == "ok"
+    task_file = sample_project_root / "plan" / "T-TEST-001.md"
+    content = task_file.read_text(encoding="utf-8")
+    assert "status: planned" in content
+
+
+def test_api_update_task_status_invalid_rejects(client: TestClient, sample_project_root: Path):
+    """POST /api/update_task with invalid status returns 400 and does not modify file."""
+    client.post(
+        "/api/projects",
+        json={"name": "TestProj", "root": str(sample_project_root)},
+    )
+    task_file = sample_project_root / "plan" / "T-TEST-001.md"
+    original = task_file.read_text(encoding="utf-8")
+    r = client.post(
+        "/api/update_task",
+        json={"id": "T-TEST-001", "project_id": "TestProj", "status": "invalid_status"},
+    )
+    assert r.status_code == 400
+    assert task_file.read_text(encoding="utf-8") == original

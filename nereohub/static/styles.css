@@ -597,6 +597,22 @@ select {
     gap: 0.4rem;
 }
 
+.status-select {
+    font-size: 0.75rem;
+    padding: 0.25rem 0.5rem;
+    border-radius: 6px;
+    border: 1px solid var(--border);
+    background: var(--card-bg);
+    color: var(--text-primary);
+    cursor: pointer;
+    min-width: 100px;
+}
+
+.status-select:focus {
+    outline: none;
+    border-color: var(--accent-primary);
+}
+
 .status-dot {
     width: 8px;
     height: 8px;

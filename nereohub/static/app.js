@@ -3,6 +3,27 @@ let projectData = { projects: [], anomalies: [], backlog: [], masters: [], stats
 let currentTab = 'dashboard';
 let dragSrcEl = null;
 
+const STATUS_OPTIONS = [
+    { value: 'backlog', label: 'Backlog' },
+    { value: 'planned', label: 'Planificado' },
+    { value: 'in_progress', label: 'En Curso' },
+    { value: 'blocked', label: 'Bloqueado' },
+    { value: 'completed', label: 'Completado' }
+];
+
+function statusSelectHtml(id, projectId, currentStatus) {
+    const current = (currentStatus || 'backlog').toLowerCase().replace(/-/g, '_');
+    const knownValues = new Set(STATUS_OPTIONS.map(o => o.value));
+    let options = STATUS_OPTIONS.map(o =>
+        `<option value="${escapeAttr(o.value)}" ${o.value === current ? 'selected' : ''}>${escapeHtml(o.label)}</option>`
+    ).join('');
+    if (current && !knownValues.has(current)) {
+        const label = current.replace(/_/g, ' ');
+        options = `<option value="${escapeAttr(current)}" selected>${escapeHtml(label)}</option>` + options;
+    }
+    return `<select class="status-select" onchange="updateTask('${id.replace(/'/g, "\\'")}', 'status', this.value, '${(projectId || '').replace(/'/g, "\\'")}')" onclick="event.stopPropagation()">${options}</select>`;
+}
+
 function getSelectedProject() {
     const el = document.getElementById('filter-project');
     return el ? el.value : '';
@@ -531,10 +552,7 @@ function renderList() {
             </div>
 
             <div class="issue-footer">
-                <div class="status-badge ${statusClass}">
-                    <div class="status-dot"></div>
-                    ${item.status || 'open'}
-                </div>
+                ${statusSelectHtml(item.id, pid, item.status)}
                 <span class="package-tag">${item.package.toUpperCase()}</span>
             </div>
         `;
@@ -873,10 +891,7 @@ function renderPlan() {
                 </div>
                 <h4 class="issue-title">${task.title}</h4>
                 <div class="issue-footer">
-                    <div class="status-badge ${statusClass}">
-                        <div class="status-dot"></div>
-                        ${task.status}
-                    </div>
+                    ${statusSelectHtml(task.id, taskProjectId, task.status)}
                 </div>
             `;
             grid.appendChild(card);
@@ -1001,6 +1016,7 @@ function renderBacklogSidebar() {
             </div>
             <h4 class="issue-title">${item.title}</h4>
             <div class="issue-footer">
+                ${statusSelectHtml(item.id, itemProjectId, item.status)}
                 <span class="package-tag">${(item.package || 'unknown').toUpperCase()}</span>
             </div>
         `;
