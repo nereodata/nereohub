@@ -5,40 +5,88 @@ from .config import load_project_task_config
 TASK_PATTERNS = ["T-*.md", "B-*.md", "BUG-*.md"]
 
 
+def resolve_placeholder_paths(root: Path, rel_path: str, folders: dict, label_template: str) -> list:
+    """Resolve paths that may contain {name} placeholders and include subfolders."""
+    root = Path(root).resolve()
+    results = []
+
+    if "{name}" in rel_path:
+        # e.g. services/{name}/docs/backlog/
+        base_part = rel_path.split("{name}")[0]
+        base_dir = (root / base_part).resolve()
+        if base_dir.exists() and base_dir.is_dir():
+            for sub in base_dir.iterdir():
+                if sub.is_dir():
+                    # Attempt to resolve the full path for this specific item
+                    item_rel_path = rel_path.replace("{name}", sub.name)
+                    item_full_path = (root / item_rel_path).resolve()
+                    if item_full_path.exists() and item_full_path.is_dir():
+                        label = label_template.replace("{name}", sub.name)
+                        results.extend(apply_folders(item_full_path, folders, label))
+    else:
+        full_path = (root / rel_path).resolve()
+        if full_path.exists() and full_path.is_dir():
+            results.extend(apply_folders(full_path, folders, label_template))
+
+    return results
+
+
+def apply_folders(base_path: Path, folders: dict, label: str) -> list:
+    """Append subfolders to the base path if they exist."""
+    res = []
+    # If no folders defined or both are empty, use the base path
+    has_subfolders = False
+    if folders:
+        for f_type in ["tasks", "bugs"]:
+            sub_rel = folders.get(f_type)
+            if sub_rel:
+                p = (base_path / sub_rel).resolve()
+                if p.exists() and p.is_dir():
+                    res.append((p, label))
+                    has_subfolders = True
+
+    if not has_subfolders:
+        res.append((base_path, label))
+    return res
+
+
 def get_plan_search_dirs(root: Path) -> list:
     """
     Discover plan directories from project root.
     1. Check for project-specific task_config.yaml.
-    2. Fallback to conventions (ROOT/plan/, ROOT/packages/*/plan/, etc.).
+    2. Fallback to conventions.
     Returns list of (directory_path, package_label).
     """
     root = Path(root).resolve()
-    path = root / "task_config.yaml"
-    has_config = path.exists()
     cfg = load_project_task_config(root)
     dirs = []
 
-    if has_config:
-        # 1. Configuration driven discovery (Start with config)
-        levels = cfg.get("levels", {})
-        master_cfg = levels.get("master", {})
-        master_rel_path = master_cfg.get("path")
-        if master_rel_path:
-            p = (root / master_rel_path).resolve()
-            if p.exists() and p.is_dir():
-                dirs.append((p, "master"))
+    # 1. Configuration driven discovery
+    levels = cfg.get("levels", {})
 
-        components = levels.get("components", [])
-        for comp in components:
-            comp_path = comp.get("path")
-            if comp_path:
-                p = (root / comp_path).resolve()
-                if p.exists() and p.is_dir():
-                    label = comp.get("id_prefix") or comp.get("name") or "component"
-                    dirs.append((p, label))
+    # Master
+    master_cfg = levels.get("master", {})
+    master_path = master_cfg.get("path")
+    if master_path:
+        dirs.extend(
+            resolve_placeholder_paths(
+                root, master_path, master_cfg.get("folders"), "master"
+            )
+        )
+
+    # Components
+    components = levels.get("components", [])
+    for comp in components:
+        comp_path = comp.get("path")
+        if comp_path:
+            label_tmpl = comp.get("id_prefix") or comp.get("name") or "{name}"
+            dirs.extend(
+                resolve_placeholder_paths(
+                    root, comp_path, comp.get("folders"), label_tmpl
+                )
+            )
 
     # 2. Convention driven discovery (Always append if missing)
-    # This ensures files in docs/plan or plan/ are still found
     conventions_master = [
         root / "plan",
         root / "docs" / "plan",
@@ -49,8 +97,9 @@ def get_plan_search_dirs(root: Path) -> list:
             if not any(d.resolve() == p_conv.resolve() for d, _ in dirs):
                 dirs.append((p_conv, "master"))
 
-    # Fallback for packages/apps only if no components defined in config
-    if not any(label != "master" for _, label in dirs):
+    # Fallback for packages/apps only if no components defined IN CONFIG
+    # (Checking if components list was empty in config)
+    if not components:
         for sub in ("packages", "apps"):
             base_dir = root / sub
             if base_dir.exists():

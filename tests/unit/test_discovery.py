@@ -100,3 +100,50 @@ levels:
 
     assert str(master_path).replace("\\", "/").endswith("custom_master")
     assert str(core_path).replace("\\", "/").endswith("src/core/plan")
+
+
+def test_get_plan_search_dirs_v3_folders(tmp_path):
+    """v3.0: get_plan_search_dirs returns segregated folders if configured."""
+    (tmp_path / "docs" / "tasks").mkdir(parents=True)
+    (tmp_path / "docs" / "bugs").mkdir(parents=True)
+
+    config_content = """
+levels:
+  master:
+    path: docs/
+    folders:
+      tasks: tasks/
+      bugs: bugs/
+"""
+    (tmp_path / "task_config.yaml").write_text(config_content, encoding="utf-8")
+
+    dirs = get_plan_search_dirs(tmp_path)
+    paths = [str(d).replace("\\", "/") for d, _ in dirs]
+
+    assert any(p.endswith("docs/tasks") for p in paths)
+    assert any(p.endswith("docs/bugs") for p in paths)
+
+
+def test_get_plan_search_dirs_v3_placeholders(tmp_path):
+    """v3.0: get_plan_search_dirs resolves {name} placeholders."""
+    # Create structure: services/srv-a/backlog, services/srv-b/backlog
+    (tmp_path / "services" / "srv-a" / "backlog").mkdir(parents=True)
+    (tmp_path / "services" / "srv-b" / "backlog").mkdir(parents=True)
+    (tmp_path / "services" / "README.md").write_text("not a dir")
+
+    config_content = """
+levels:
+  components:
+    - type: service
+      id_prefix: "{name}"
+      path: services/{name}/backlog/
+"""
+    (tmp_path / "task_config.yaml").write_text(config_content, encoding="utf-8")
+
+    dirs = get_plan_search_dirs(tmp_path)
+    srv_dirs = [d for d, label in dirs if label in ("srv-a", "srv-b")]
+
+    assert len(srv_dirs) == 2
+    labels = [label for _, label in dirs]
+    assert "srv-a" in labels
+    assert "srv-b" in labels

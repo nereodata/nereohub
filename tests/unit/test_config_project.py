@@ -45,3 +45,40 @@ def test_load_project_task_config_invalid_yaml(tmp_path):
 
     loaded = load_project_task_config(tmp_path)
     assert loaded["project"]["prefix"] == ""
+
+
+def test_load_project_task_config_v3_folders(tmp_path):
+    """Load task_config.yaml v3.0 with folders structure."""
+    config_data = {
+        "project": {"prefix": "PRJ", "name": "Project"},
+        "levels": {
+            "master": {
+                "id_prefix": "",
+                "path": "docs/plan/",
+                "folders": {"tasks": "tasks/", "bugs": "bugs/"},
+            },
+            "components": [
+                {
+                    "type": "service",
+                    "id_prefix": "SRV",
+                    "path": "services/{name}/docs/backlog/",
+                    "folders": {"tasks": "tasks/", "bugs": "bugs/"},
+                }
+            ],
+        },
+    }
+    config_file = tmp_path / "task_config.yaml"
+    with open(config_file, "w", encoding="utf-8") as f:
+        yaml.dump(config_data, f)
+
+    loaded = load_project_task_config(tmp_path)
+    assert loaded["levels"]["master"]["folders"]["tasks"] == "tasks/"
+    assert loaded["levels"]["components"][0]["folders"]["bugs"] == "bugs/"
+    assert "{name}" in loaded["levels"]["components"][0]["path"]
+
+
+def test_load_project_task_config_defaults_include_folders(tmp_path):
+    """Check that defaults now include empty folders for backward compatibility."""
+    loaded = load_project_task_config(tmp_path)
+    assert "folders" in loaded["levels"]["master"]
+    assert "tasks" in loaded["levels"]["master"]["folders"]

@@ -154,7 +154,11 @@ def load_project_task_config(root: Path) -> dict:
     defaults = {
         "project": {"prefix": "", "name": ""},
         "levels": {
-            "master": {"id_prefix": "", "path": "plan/"},
+            "master": {
+                "id_prefix": "",
+                "path": "plan/",
+                "folders": {"tasks": "", "bugs": ""},
+            },
             "components": [],
         },
     }
@@ -174,8 +178,18 @@ def load_project_task_config(root: Path) -> dict:
             else:
                 if "master" not in data["levels"]:
                     data["levels"]["master"] = defaults["levels"]["master"]
+                else:
+                    if "folders" not in data["levels"]["master"]:
+                        data["levels"]["master"]["folders"] = defaults["levels"]["master"][
+                            "folders"
+                        ]
+
                 if "components" not in data["levels"]:
                     data["levels"]["components"] = defaults["levels"]["components"]
+                else:
+                    for comp in data["levels"]["components"]:
+                        if "folders" not in comp:
+                            comp["folders"] = {"tasks": "", "bugs": ""}
             return data
     except Exception:
         return defaults
