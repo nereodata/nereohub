@@ -11,17 +11,27 @@ const STATUS_OPTIONS = [
     { value: 'completed', label: 'Completado' }
 ];
 
+function getStatusLabel(status) {
+    const s = (status || 'backlog').toLowerCase().replace(/-/g, '_');
+    const opt = STATUS_OPTIONS.find(o => o.value === s);
+    return opt ? opt.label : s.replace(/_/g, ' ');
+}
+
 function statusSelectHtml(id, projectId, currentStatus) {
     const current = (currentStatus || 'backlog').toLowerCase().replace(/-/g, '_');
-    const knownValues = new Set(STATUS_OPTIONS.map(o => o.value));
-    let options = STATUS_OPTIONS.map(o =>
-        `<option value="${escapeAttr(o.value)}" ${o.value === current ? 'selected' : ''}>${escapeHtml(o.label)}</option>`
+    const label = getStatusLabel(currentStatus);
+    const statusClass = `status-${current.replace(/_/g, '-')}`;
+    const opts = STATUS_OPTIONS.map(o =>
+        `<button type="button" class="status-option" data-value="${escapeAttr(o.value)}">${escapeHtml(o.label)}</button>`
     ).join('');
-    if (current && !knownValues.has(current)) {
-        const label = current.replace(/_/g, ' ');
-        options = `<option value="${escapeAttr(current)}" selected>${escapeHtml(label)}</option>` + options;
-    }
-    return `<select class="status-select" onchange="updateTask('${id.replace(/'/g, "\\'")}', 'status', this.value, '${(projectId || '').replace(/'/g, "\\'")}')" onclick="event.stopPropagation()">${options}</select>`;
+    const idEsc = escapeAttr(id);
+    const pidEsc = escapeAttr(projectId || '');
+    return `<span class="status-badge status-badge-clickable ${statusClass}" data-task-id="${idEsc}" data-project-id="${pidEsc}" title="Clic para cambiar estado">
+        <span class="status-dot"></span>
+        <span class="status-label">${escapeHtml(label)}</span>
+        <span class="status-chevron">▾</span>
+        <div class="status-dropdown">${opts}</div>
+    </span>`;
 }
 
 function getSelectedProject() {
@@ -75,6 +85,33 @@ function syncProjectFilterFromPanel(which) {
     if (list) list.value = v;
     if (plan) plan.value = v;
 }
+
+// Status badge click-to-change (event delegation, capture to prevent card modal)
+document.addEventListener('click', (e) => {
+    const option = e.target.closest('.status-option');
+    const badge = e.target.closest('.status-badge-clickable');
+    if (option && badge) {
+        e.preventDefault();
+        e.stopPropagation();
+        const taskId = badge.dataset.taskId;
+        const projectId = badge.dataset.projectId || '';
+        const newStatus = option.dataset.value;
+        if (taskId && newStatus) {
+            updateTask(taskId, 'status', newStatus, projectId);
+        }
+        document.querySelectorAll('.status-badge-clickable.open').forEach(b => b.classList.remove('open'));
+        return;
+    }
+    if (badge && !option) {
+        e.preventDefault();
+        e.stopPropagation();
+        const wasOpen = badge.classList.contains('open');
+        document.querySelectorAll('.status-badge-clickable.open').forEach(b => b.classList.remove('open'));
+        if (!wasOpen) badge.classList.add('open');
+        return;
+    }
+    document.querySelectorAll('.status-badge-clickable.open').forEach(b => b.classList.remove('open'));
+}, true);
 
 // Initial Setup
 document.addEventListener('DOMContentLoaded', () => {
