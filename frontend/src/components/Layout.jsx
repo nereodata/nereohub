@@ -3,54 +3,81 @@ import { LayoutDashboard, Bug, ListTodo, Layers, RefreshCw, FolderCog, ChevronLe
 
 export const Sidebar = ({ currentTab, setTab, onRefresh, onManageProjects, lastUpdated, collapsed, setCollapsed }) => (
   <aside className={`sidebar ${collapsed ? 'collapsed' : ''}`}>
-    <button className="btn-collapse" onClick={() => setCollapsed(!collapsed)}><ChevronLeft size={14} /></button>
-    <div className="logo-section">
-      <div className="logo-icon" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-        <img 
-          src="/logo.png" 
-          alt="NereoHub" 
-          style={{ 
-            width: '28px', 
-            height: '28px', 
-            objectFit: 'contain',
-            filter: 'brightness(0) invert(1)' 
-          }} 
-        />
+    <button className="btn-collapse" onClick={() => setCollapsed(!collapsed)}>
+      <ChevronLeft size={14} />
+    </button>
+    
+    <div className="sidebar-header">
+      <div className="logo-section">
+        <div className="logo-icon">
+          <img 
+            src="/logo.png" 
+            alt="NereoHub" 
+            style={{ 
+              width: '24px', 
+              height: '24px', 
+              objectFit: 'contain',
+              filter: 'brightness(0) invert(1)' 
+            }} 
+          />
+        </div>
+        <span className="logo-text">NereoHub</span>
       </div>
-      <span className="logo-text">NereoHub</span>
     </div>
 
-    <ul className="nav-menu admin-menu">
-      <li className="nav-item" onClick={onManageProjects} title={collapsed ? "Gestionar Proyectos" : ""}>
-        <FolderCog size={18} />{!collapsed && <span>Gestionar Proyectos</span>}
-      </li>
-    </ul>
-    <nav className="nav-menu">
-      <li className={`nav-item ${currentTab === 'dashboard' ? 'active' : ''}`} onClick={() => setTab('dashboard')} title={collapsed ? "Dashboard" : ""}>
-        <LayoutDashboard size={18} />{!collapsed && <span>Dashboard</span>}
-      </li>
-      <li className={`nav-item ${currentTab === 'anomalies' ? 'active' : ''}`} onClick={() => setTab('anomalies')} title={collapsed ? "Anomalías" : ""}>
-        <Bug size={18} />{!collapsed && <span>Anomalías</span>}
-      </li>
-      <li className={`nav-item ${currentTab === 'backlog' ? 'active' : ''}`} onClick={() => setTab('backlog')} title={collapsed ? "Tareas" : ""}>
-        <ListTodo size={18} />{!collapsed && <span>Tareas</span>}
-      </li>
-      <li className={`nav-item ${currentTab === 'plan' ? 'active' : ''}`} onClick={() => setTab('plan')} title={collapsed ? "Plan de Ejecución" : ""}>
-        <Layers size={18} />{!collapsed && <span>Plan de Ejecución</span>}
-      </li>
-    </nav>
-    <ul className="nav-menu footer-menu">
-      <li className="nav-item" onClick={onRefresh} title={collapsed ? `Actualizar (${lastUpdated})` : ""}>
-        <RefreshCw size={18} />{!collapsed && <span>Actualizar</span>}
-      </li>
-      {!collapsed && lastUpdated && (
-        <div className="last-updated-hint">
-          {lastUpdated}
-        </div>
-      )}
-    </ul>
+    <div className="sidebar-content">
+      <div className="nav-section">
+        {!collapsed && <div className="nav-section-title">PROYECTOS</div>}
+        <ul className="nav-menu">
+          <li className="nav-item" onClick={onManageProjects} title={collapsed ? "Gestionar Proyectos" : ""}>
+            <FolderCog size={18} />
+            {!collapsed && <span>Gestor de Proyectos</span>}
+          </li>
+        </ul>
+      </div>
+
+      <div className="nav-section">
+        {!collapsed && <div className="nav-section-title">TAREAS</div>}
+        <nav className="nav-menu">
+          <li className={`nav-item ${currentTab === 'dashboard' ? 'active' : ''}`} onClick={() => setTab('dashboard')} title={collapsed ? "Panel de Control" : ""}>
+            <LayoutDashboard size={18} />
+            {!collapsed && <span>Dashboard</span>}
+          </li>
+          <li className={`nav-item ${currentTab === 'anomalies' ? 'active' : ''}`} onClick={() => setTab('anomalies')} title={collapsed ? "Anomalías" : ""}>
+            <Bug size={18} />
+            {!collapsed && <span>Anomalías</span>}
+          </li>
+          <li className={`nav-item ${currentTab === 'backlog' ? 'active' : ''}`} onClick={() => setTab('backlog')} title={collapsed ? "Tareas" : ""}>
+            <ListTodo size={18} />
+            {!collapsed && <span>Tareas</span>}
+          </li>
+          <li className={`nav-item ${currentTab === 'plan' ? 'active' : ''}`} onClick={() => setTab('plan')} title={collapsed ? "Plan de Ejecución" : ""}>
+            <Layers size={18} />
+            {!collapsed && <span>Plan de Ejecución</span>}
+          </li>
+        </nav>
+      </div>
+    </div>
+
+    <div className="sidebar-footer">
+      <div className="nav-section">
+        <ul className="nav-menu">
+          <li className="nav-item refresh-item" onClick={onRefresh} title={collapsed ? `Actualizar (${lastUpdated})` : ""}>
+            <RefreshCw size={18} />
+            {!collapsed && <span>Actualizar Sistema</span>}
+          </li>
+        </ul>
+        {!collapsed && lastUpdated && (
+          <div className="update-status">
+            <div className="status-dot"></div>
+            <span>Última actualización: {lastUpdated}</span>
+          </div>
+        )}
+      </div>
+    </div>
   </aside>
 );
+
 
 export const Dashboard = ({ stats }) => (
   <div style={{ padding: '2rem' }}>
