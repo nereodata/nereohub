@@ -137,7 +137,7 @@ export const TaskCard = ({ item, onOpen, onUpdate, projectColor, showDetails = t
       
       <div className="task-card-footer">
         <div className={`status-marker ${statusClass} interactive ${activeMenu === 'status' ? 'is-active' : ''}`} ref={statRef} onClick={e => { e.stopPropagation(); activeMenu ? closeMenu() : openMenu('status', statRef); }}>
-          <span className="marker-dot"></span><span className="marker-label">{item.status || 'open'}</span><ChevronDown size={10} className="marker-chevron" />
+          <span className="marker-dot"></span><span className="marker-label">{item.status || 'open'}</span>
         </div>
         {activeMenu === 'status' && (
           <FloatingSelect anchorRect={anchorRect} options={availableStatuses} onSelect={(e, val) => { closeMenu(); onUpdate(item.id, { status: val }, item.project_id || item.project); }} onClose={closeMenu} />
