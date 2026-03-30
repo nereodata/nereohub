@@ -1,4 +1,4 @@
-:root {
+﻿:root {
     /* Nereodata palette */
     --bg-color: #EEEFEE;
     --card-bg: rgba(255, 255, 255, 0.95);
@@ -1065,7 +1065,7 @@ select {
     color: white;
 }
 
-.type-diseño {
+.type-dise├▒o {
     background: #db61a2;
     color: white;
 }

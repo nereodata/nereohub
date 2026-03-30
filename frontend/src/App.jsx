@@ -158,7 +158,14 @@ function App() {
       </main>
 
       <Modal isOpen={modalOpen} item={selectedTask} onClose={() => setModalOpen(false)} onRefreshData={fetchData} />
-      <ProjectManager projects={data.projects} isOpen={projectMgrOpen} onClose={() => setProjectMgrOpen(false)} onAdd={async (p) => { await fetch('/api/project', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }); fetchData() }} onDelete={async (r) => { if(confirm("¿Eliminar?")) { await fetch(`/api/project?root=${encodeURIComponent(r)}`, { method: 'DELETE' }); fetchData() } }} />
+      <ProjectManager 
+        projects={data.projects} 
+        isOpen={projectMgrOpen} 
+        onClose={() => setProjectMgrOpen(false)} 
+        onAdd={async (p) => { await fetch('/api/projects', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(p) }); fetchData() }} 
+        onDelete={async (r) => { if(confirm("¿Eliminar?")) { await fetch(`/api/projects?root=${encodeURIComponent(r)}`, { method: 'DELETE' }); fetchData() } }} 
+        onUpdate={async (oldRoot, p) => { await fetch('/api/projects', { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ old_root: oldRoot, ...p }) }); fetchData() }}
+      />
       <TaskCreator projects={data.projects} isOpen={taskCreatorOpen} onClose={() => setTaskCreatorOpen(false)} onCreate={handleCreateTask} />
     </>
   )

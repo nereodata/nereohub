@@ -1,4 +1,4 @@
-
+﻿
 let projectData = { projects: [], anomalies: [], backlog: [], masters: [], stats: {} };
 let currentTab = 'dashboard';
 let dragSrcEl = null;
@@ -29,7 +29,7 @@ function statusSelectHtml(id, projectId, currentStatus) {
     return `<span class="status-badge status-badge-clickable ${statusClass}" data-task-id="${idEsc}" data-project-id="${pidEsc}" title="Clic para cambiar estado">
         <span class="status-dot"></span>
         <span class="status-label">${escapeHtml(label)}</span>
-        <span class="status-chevron">▾</span>
+        <span class="status-chevron">Ôû¥</span>
         <div class="status-dropdown">${opts}</div>
     </span>`;
 }
@@ -125,7 +125,7 @@ const PROJECT_PALETTE = [
     { hex: '#16374E', title: 'Azul Nereodata' },
     { hex: '#55A878', title: 'Verde' },
     { hex: '#EE6C4D', title: 'Coral' },
-    { hex: '#E0B354', title: 'Ámbar' },
+    { hex: '#E0B354', title: '├ümbar' },
     { hex: '#A39BB0', title: 'Lavanda' },
     { hex: '#48738C', title: 'Azul apagado' },
     { hex: '#219EBC', title: 'Cian' },
@@ -193,7 +193,7 @@ async function fetchData() {
         }
 
         const updatedEl = document.getElementById('last-updated');
-        if (updatedEl) updatedEl.innerText = `Última actualización: ${new Date().toLocaleTimeString()}`;
+        if (updatedEl) updatedEl.innerText = `├Ültima actualizaci├│n: ${new Date().toLocaleTimeString()}`;
     } catch (error) {
         console.error('Error fetching data:', error);
     } finally {
@@ -242,7 +242,7 @@ function switchTab(tab) {
     if (activeNav) activeNav.classList.add('active');
 
     const titleEl = document.getElementById('page-title');
-    if (titleEl) titleEl.innerText = tab === 'plan' ? 'Plan de Ejecución' : tab.charAt(0).toUpperCase() + tab.slice(1);
+    if (titleEl) titleEl.innerText = tab === 'plan' ? 'Plan de Ejecuci├│n' : tab.charAt(0).toUpperCase() + tab.slice(1);
 
     const dashboardView = document.getElementById('dashboard-view');
     const listView = document.getElementById('list-view');
@@ -278,7 +278,7 @@ function exportTasks() {
     const columns = [
         { label: 'Proyecto', key: 'project_id' },
         { label: 'ID', key: 'id' },
-        { label: 'Título', key: 'title' },
+        { label: 'T├¡tulo', key: 'title' },
         { label: 'Estado', key: 'status' },
         { label: 'Prioridad', key: 'priority' },
         { label: 'Paquete', key: 'package' },
@@ -297,8 +297,8 @@ function exportPlanExcel() {
 
     const wsData = filtered.map(item => ({
         'ID': item.id,
-        'Título': item.title,
-        'Versión': item.version,
+        'T├¡tulo': item.title,
+        'Versi├│n': item.version,
         'Naturaleza': item.type,
         'Peso': item.weight,
         'Estado': item.status
@@ -306,7 +306,7 @@ function exportPlanExcel() {
 
     const ws = XLSX.utils.json_to_sheet(wsData);
     const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "Plan de Ejecución");
+    XLSX.utils.book_append_sheet(wb, ws, "Plan de Ejecuci├│n");
     XLSX.writeFile(wb, "hub_plan_ejecucion.xlsx");
 }
 
@@ -421,7 +421,7 @@ function exportBugs() {
     const columns = [
         { label: 'Proyecto', key: 'project_id' },
         { label: 'ID', key: 'id' },
-        { label: 'Título', key: 'title' },
+        { label: 'T├¡tulo', key: 'title' },
         { label: 'Estado', key: 'status' },
         { label: 'Prioridad', key: 'priority' },
         { label: 'Paquete', key: 'package' },
@@ -567,7 +567,7 @@ function renderList() {
             <div class="meta-info">
                 <span class="version-tag">${item.version || 'v0.2'}</span>
                 <span class="weight-tag">W: ${item.weight}</span>
-                ${item.parent_id ? `<span class="parent-tag">↑ ${item.parent_id}</span>` : ''}
+                ${item.parent_id ? `<span class="parent-tag">Ôåæ ${item.parent_id}</span>` : ''}
             </div>
             <div class="issue-header">
                 <span class="issue-id">${item.id}</span>
@@ -739,7 +739,7 @@ async function handlePlanDrop(e) {
         }
     } catch (err) {
         console.error(err);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     } finally {
         document.querySelectorAll('.over').forEach(el => el.classList.remove('over'));
     }
@@ -773,7 +773,7 @@ async function saveOrder() {
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     }
 }
 
@@ -1089,7 +1089,7 @@ function handleBacklogSidebarContainerDrop(e) {
     e.stopPropagation();
     fetch('/api/update_task', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ id, project_id: projectId, weight: newWeight }) })
         .then(r => r.ok ? fetchData() : r.json().then(d => alert(d.detail || d.error || 'Error')))
-        .catch(err => { console.error(err); alert('Error de conexión'); });
+        .catch(err => { console.error(err); alert('Error de conexi├│n'); });
 }
 
 async function handleBacklogSidebarDrop(e) {
@@ -1136,7 +1136,7 @@ async function handleBacklogSidebarDrop(e) {
         }
     } catch (err) {
         console.error(err);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     } finally {
         document.querySelectorAll('.over').forEach(el => el.classList.remove('over'));
     }
@@ -1186,7 +1186,7 @@ async function planTask(id, projectId, event) {
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     }
 }
 
@@ -1263,7 +1263,7 @@ async function addProjectFromUI() {
     const root = (rootEl && rootEl.value) ? rootEl.value.trim() : '';
     const color = (colorEl && colorEl.value) ? colorEl.value.trim() : '';
     if (!root) {
-        alert('Indica la ruta raíz del proyecto.');
+        alert('Indica la ruta ra├¡z del proyecto.');
         return;
     }
     try {
@@ -1283,11 +1283,11 @@ async function addProjectFromUI() {
                 selectPaletteChip(document.getElementById('new-project-color-palette'), colorEl.value);
             }
         } else {
-            alert(data.detail || 'Error al añadir proyecto');
+            alert(data.detail || 'Error al a├▒adir proyecto');
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     }
 }
 
@@ -1346,12 +1346,12 @@ async function saveEditProject() {
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     }
 }
 
 async function deleteProjectFromUI(root) {
-    if (!confirm('¿Eliminar este proyecto de la configuración?')) return;
+    if (!confirm('┬┐Eliminar este proyecto de la configuraci├│n?')) return;
     try {
         const res = await fetch(`/api/projects?root=${encodeURIComponent(root)}`, { method: 'DELETE' });
         const data = await res.json().catch(() => ({}));
@@ -1363,7 +1363,7 @@ async function deleteProjectFromUI(root) {
         }
     } catch (e) {
         console.error(e);
-        alert('Error de conexión');
+        alert('Error de conexi├│n');
     }
 }
 
