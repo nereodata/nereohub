@@ -611,8 +611,12 @@ main {
   color: transparent;
 }
 
-.fs-option.selected .fs-checkbox {
+.fs-option.selected .fs-checkbox,
+.fs-checkbox-mini {
   color: #475569;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 /* Project Select Mini - Compacted */

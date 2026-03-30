@@ -45,6 +45,38 @@ export const MultiSelect = ({ label, options, selected, onChange, icon: Icon, se
   );
 };
 
+export const SingleSelect = ({ label, options, selected, onChange, icon: Icon }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const containerRef = useRef(null);
+  useEffect(() => {
+    const clickOutside = (e) => { if (containerRef.current && !containerRef.current.contains(e.target)) setIsOpen(false); };
+    document.addEventListener('mousedown', clickOutside);
+    return () => document.removeEventListener('mousedown', clickOutside);
+  }, []);
+  const selectedLabel = options.find(o => o.value === selected)?.label || 'Todos los Proyectos';
+  return (
+    <div className="filter-select-mini" ref={containerRef}>
+      <div className={`filter-select-header ${isOpen ? 'open' : ''}`} onClick={() => setIsOpen(!isOpen)}>
+        {Icon && <Icon size={14} />}
+        <span className="fs-value">{selectedLabel}</span>
+        <ChevronDown size={12} className="fs-chevron" />
+      </div>
+      {isOpen && (
+        <div className="filter-select-dropdown">
+          <div className="fs-options-container">
+            {options.map(opt => (
+              <div key={opt.value} className={`fs-option ${selected === opt.value ? 'selected' : ''}`} onClick={() => { onChange(opt.value); setIsOpen(false); }}>
+                <span>{opt.label || opt.value}</span>
+                {selected === opt.value && <div className="fs-checkbox-mini"><Check size={10} /></div>}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
 export const FilterBar = ({ filters, setFilters, projects, selectedProject, setSelectedProject, data }) => {
   const statusOptions = [{ value: 'backlog', label: 'Backlog' }, { value: 'planned', label: 'Planificado' }, { value: 'in_progress', label: 'En Curso' }, { value: 'blocked', label: 'Bloqueado' }, { value: 'completed', label: 'Completado' }];
   const versionOptions = React.useMemo(() => {
@@ -52,11 +84,12 @@ export const FilterBar = ({ filters, setFilters, projects, selectedProject, setS
     [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => { if (t.version && t.version !== 'backlog') versions.add(t.version); });
     return Array.from(versions).map(v => ({ value: v, label: v })).sort((a,b) => a.label.localeCompare(b.label));
   }, [data]);
+  const projectOptions = [{ value: '', label: 'Todos los Proyectos' }, ...projects.map(p => ({ value: p.name, label: p.name }))];
   return (
     <div className="filter-row-compact">
+      <SingleSelect label="Proyecto" icon={Box} options={projectOptions} selected={selectedProject} onChange={setSelectedProject} />
       <MultiSelect label="Estado" icon={Filter} options={statusOptions} selected={filters.statuses || []} onChange={(s) => setFilters({...filters, statuses: s})} />
       <MultiSelect label="Versión" icon={Tag} options={versionOptions} selected={filters.versions || []} onChange={(v) => setFilters({...filters, versions: v})} searchable={true} />
-      <div className="project-select-mini"><Box size={14} /><select value={selectedProject} onChange={e => setSelectedProject(e.target.value)}><option value="">Todos los Proyectos</option>{projects.map(p => <option key={p.name} value={p.name}>{p.name}</option>)}</select></div>
     </div>
   );
 };
