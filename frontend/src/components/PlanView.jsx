@@ -2,7 +2,7 @@ import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from './TaskCard';
 
-export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backlogOpen, showDetails }) => {
+export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backlogOpen, showDetails, allVersions: passedAllVersions }) => {
   const allFilteredItems = React.useMemo(() => {
     const rawList = [...data.backlog, ...data.anomalies, ...data.masters];
     return rawList.filter(item => {
@@ -25,12 +25,13 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
   }, [data, applyFilters]);
 
   const allVersions = React.useMemo(() => {
+    if (passedAllVersions) return passedAllVersions;
     const list = new Set();
     [...data.backlog, ...data.anomalies, ...data.masters].forEach(item => {
       if (item.version && item.version.toLowerCase() !== 'backlog') list.add(item.version);
     });
     return Array.from(list).sort();
-  }, [data]);
+  }, [data, passedAllVersions]);
 
   const versions = React.useMemo(() => {
     return allVersions.filter(v => allFilteredItems.some(t => t.version === v));

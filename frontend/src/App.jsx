@@ -113,6 +113,14 @@ function App() {
     return true
   }, [filters, selectedProject])
 
+  const allVersions = useMemo(() => {
+    const v = new Set();
+    [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
+      if (t.version && t.version !== 'backlog') v.add(t.version);
+    });
+    return Array.from(v).sort();
+  }, [data]);
+
   const listItems = useMemo(() => {
     if (currentTab === 'dashboard') return []
     let source = currentTab === 'anomalies' ? data.anomalies : data.backlog
@@ -151,6 +159,7 @@ function App() {
                 onOpen={(t) => { setSelectedTask(t); setModalOpen(true); }}
                 applyFilters={applyFilters} showDetails={showDetails}
                 backlogOpen={backlogOpen}
+                allVersions={allVersions}
               />
             )}
           </div>
