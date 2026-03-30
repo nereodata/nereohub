@@ -139,7 +139,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                 if not fm:
                     continue
                 uid = (project_name, fm.get("id"))
-                if uid in found_ids_in_project:
+                if not uid[1] or uid in found_ids_in_project:
                     continue
                 found_ids_in_project.add(uid)
                 fm["project"] = project_name
