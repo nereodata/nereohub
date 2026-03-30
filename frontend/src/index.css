@@ -759,11 +759,19 @@ main {
 
 .task-card-title {
   font-size: 0.85rem;
-  line-height: 1.4;
+  line-height: 1.25rem;
   color: #1e293b;
   font-family: 'Inter', sans-serif;
   font-weight: 600;
   letter-spacing: -0.1px;
+  
+  /* Unified Height: 2 lines exactly */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  height: 2.5rem; /* 1.25rem * 2 */
+  margin-bottom: 0.5rem;
 }
 
 .mini-meta-badge {
@@ -921,11 +929,41 @@ main {
   padding-top: 0;
 }
 
+
 .plan-columns-flex-compact {
   display: flex !important;
   flex-direction: row !important;
-  gap: 2.5rem;
+  gap: 3.5rem; /* Space between different versions */
   height: 100%;
+}
+
+.version-group-unified {
+  transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.version-multi-columns-content {
+  display: flex;
+  gap: 1rem;
+  padding: 0.75rem 1.15rem;
+  flex: 1;
+  overflow-x: hidden;
+}
+
+.sub-column-list-clean {
+  width: 300px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 200px;
+  padding-bottom: 2rem;
+  transition: background 0.2s;
+}
+
+.sub-column-list-clean.dragging-over {
+  background: rgba(59, 130, 246, 0.04);
+  border-radius: 12px;
 }
 
 /* Sticky Backlog Sidebar */
@@ -1010,7 +1048,7 @@ main {
 
 /* Plan Columns (Glassmorphism) */
 .plan-column {
-  width: 300px;
+  min-width: 300px;
   flex-shrink: 0;
   background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(16px);
@@ -1676,3 +1714,64 @@ main {
   color: #334155;
   background: #fdfdfd;
 }
+
+/* --- Task Detail Metadata Section --- */
+.task-metadata-section {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  padding: 0.25rem 0 1.25rem 0;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.metadata-item-premium {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.35rem 0.7rem;
+  background: #f8fafc;
+  border-radius: 8px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #475569;
+  border: 1px solid #f1f5f9;
+  transition: all 0.2s ease;
+}
+
+.metadata-item-premium:hover {
+  background: white;
+  border-color: #cbd5e1;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.03);
+  transform: translateY(-1px);
+}
+
+.metadata-label-clean {
+  color: #94a3b8;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.55rem;
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.metadata-value-clean {
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.metadata-value-clean.status-badge {
+  text-transform: uppercase;
+  font-size: 0.65rem;
+  padding: 0.15rem 0.4rem;
+  border-radius: 4px;
+}
+
+.metadata-value-clean.status-badge.backlog { background: #f1f5f9; color: #64748b; }
+.metadata-value-clean.status-badge.planned { background: rgba(96, 165, 250, 0.1); color: #2563eb; }
+.metadata-value-clean.status-badge.in_progress { background: rgba(251, 191, 36, 0.1); color: #d97706; }
+.metadata-value-clean.status-badge.blocked { background: rgba(248, 113, 113, 0.1); color: #dc2626; }
+.metadata-value-clean.status-badge.completed { background: rgba(52, 211, 153, 0.1); color: #059669; }
+

@@ -42,13 +42,23 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
     const { draggableId, destination, source } = result;
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
     const [projectId, id] = draggableId.split('|');
-    const updates = { version: destination.droppableId };
-    if (source.droppableId === 'backlog' && destination.droppableId !== 'backlog') updates.status = 'planned';
-    if (destination.droppableId === 'backlog') updates.status = 'backlog';
+    
+    // Extract version from droppableId (handle version|index)
+    const destDroppableId = destination.droppableId;
+    const newVersion = destDroppableId.includes('|') ? destDroppableId.split('|')[0] : destDroppableId;
+    
+    const updates = { version: newVersion };
+    if (source.droppableId === 'backlog' && newVersion !== 'backlog') updates.status = 'planned';
+    if (newVersion === 'backlog') updates.status = 'backlog';
     onUpdate(id, updates, projectId);
   };
 
   const getVersionTasks = (v) => allFilteredItems.filter(t => t.version === v);
+
+  const maxColsPerVersion = React.useMemo(() => {
+    if (versions.length === 1) return 3;
+    return 1;
+  }, [versions]);
 
   return (
     <DragDropContext onDragEnd={onDragEnd}>
@@ -72,21 +82,36 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
           <div className="plan-scroll-area">
             <div className="plan-layout-flex">
               <div className="plan-columns-flex-compact">
-                {versions.map(v => (
-                  <Droppable droppableId={v} key={v}>
-                    {(provided, snapshot) => (
-                      <div className={`plan-column ver-col-compact ${snapshot.isDraggingOver ? 'dragging-over' : ''}`} {...provided.droppableProps} ref={provided.innerRef}>
-                        <div className="column-header-compact"><h4>{v}</h4><span className="count-badge">{getVersionTasks(v).length}</span></div>
-                        <div className="column-scroll-container">
-                          {getVersionTasks(v).sort((a,b) => (a.weight || 100) - (b.weight || 100)).map((item, index) => (
-                            <DraggableCard key={`${item.project_id}|${item.id}`} item={item} index={index} onOpen={onOpen} projects={projects} onUpdate={onUpdate} showDetails={showDetails} allVersions={allVersions} />
-                          ))}
-                          {provided.placeholder}
-                        </div>
+                {versions.map(v => {
+                  const tasks = getVersionTasks(v).sort((a,b) => (a.weight || 100) - (b.weight || 100));
+                  const numCols = Math.min(maxColsPerVersion, Math.max(1, Math.ceil(tasks.length / 4)));
+                  
+                  // Split tasks into numCols (round-robin)
+                  const colGroups = Array.from({ length: numCols }, (_, i) => tasks.filter((_, idx) => idx % numCols === i));
+                  
+                  return (
+                    <div key={v} className="plan-column ver-col-compact version-group-unified" style={{ width: `calc(${numCols} * 300px + ${numCols - 1} * 1rem + 2.8rem)` }}>
+                      <div className="column-header-compact">
+                        <h4>{v}</h4>
+                        <span className="count-badge">{tasks.length}</span>
                       </div>
-                    )}
-                  </Droppable>
-                ))}
+                      <div className="version-multi-columns-content">
+                        {colGroups.map((colTasks, i) => (
+                          <Droppable droppableId={numCols > 1 ? `${v}|${i}` : v} key={`${v}|${i}`}>
+                            {(provided, snapshot) => (
+                              <div className={`sub-column-list-clean ${snapshot.isDraggingOver ? 'dragging-over' : ''}`} {...provided.droppableProps} ref={provided.innerRef}>
+                                {colTasks.map((item, index) => (
+                                  <DraggableCard key={`${item.project_id}|${item.id}`} item={item} index={index} onOpen={onOpen} projects={projects} onUpdate={onUpdate} showDetails={showDetails} allVersions={allVersions} />
+                                ))}
+                                {provided.placeholder}
+                              </div>
+                            )}
+                          </Droppable>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                })}
               </div>
             </div>
           </div>

@@ -125,7 +125,7 @@ export const TaskCard = ({ item, onOpen, onUpdate, projectColor, showDetails = t
           </div>
           <span className={`type-tag-subtle ${typeClass}`}>{item.type || 'feature'}</span>
         </div>
-        <h3 className="task-card-title">{item.title}</h3>
+        <h3 className="task-card-title" title={item.title}>{item.title}</h3>
       </div>
 
       {showDetails && (
