@@ -15,7 +15,14 @@ htmlcov/
 # IDE / OS
 .idea/
 .vscode/
+.cursor/
 *.swp
 .DS_Store
 server-launcher.exe
 server-launcher.wrapper.log
+
+# Node
+node_modules/
+frontend/node_modules/
+dist/
+nereohub/static/assets/
