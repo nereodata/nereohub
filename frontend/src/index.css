@@ -1555,9 +1555,9 @@ main {
 .modal-content-premium {
   background: white;
   width: 100%;
-  max-width: 900px;
-  height: 90vh;
-  border-radius: 20px;
+  max-width: 850px; /* narrowed slightly */
+  height: 85vh; /* slightly shorter */
+  border-radius: 16px; /* more refined */
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -1566,7 +1566,7 @@ main {
 }
 
 .modal-header-elegant {
-  padding: 1.25rem 2rem;
+  padding: 0.65rem 1.75rem;
   border-bottom: 1px solid #f1f5f9;
   display: flex;
   justify-content: space-between;
@@ -1576,7 +1576,7 @@ main {
 
 .modal-header-elegant h2 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.15rem;
+  font-size: 1rem;
   font-weight: 800;
   color: #1e293b;
   letter-spacing: -0.2px;
@@ -1585,15 +1585,15 @@ main {
 .modal-body-scroll {
   flex: 1;
   overflow-y: auto;
-  padding: 3rem 4rem;
+  padding: 1.25rem 3rem 2rem 3rem;
 }
 
 /* Redesigning the Markdown rendering area */
 .task-detail-rendering {
   font-family: 'Inter', sans-serif;
-  line-height: 1.75;
+  line-height: 1.65;
   color: #334155;
-  font-size: 1rem;
+  font-size: 0.92rem;
 }
 
 .task-detail-rendering h1, 
@@ -1601,14 +1601,18 @@ main {
 .task-detail-rendering h3 {
   font-family: 'Outfit', sans-serif;
   color: #0f172a;
-  margin-top: 2.5rem;
+  margin-top: 2rem;
   margin-bottom: 1rem;
   letter-spacing: -0.5px;
 }
 
-.task-detail-rendering h1 { font-size: 1.75rem; font-weight: 800; border-bottom: 2px solid #f1f5f9; padding-bottom: 0.5rem; }
-.task-detail-rendering h2 { font-size: 1.35rem; font-weight: 700; margin-top: 2.25rem; }
-.task-detail-rendering h3 { font-size: 1.1rem; font-weight: 700; color: #475569; }
+.task-detail-rendering > *:first-child {
+  margin-top: 0 !important;
+}
+
+.task-detail-rendering h1 { font-size: 1.5rem; font-weight: 800; border-bottom: 1px solid #f1f5f9; padding-bottom: 0.4rem; }
+.task-detail-rendering h2 { font-size: 1.15rem; font-weight: 700; margin-top: 1.75rem; }
+.task-detail-rendering h3 { font-size: 0.95rem; font-weight: 700; color: #475569; }
 
 .task-detail-rendering p {
   margin-bottom: 1.5rem;
@@ -1651,12 +1655,12 @@ main {
 }
 
 .modal-footer-elegant {
-  padding: 1.25rem 2rem;
+  padding: 0.75rem 1.75rem;
   background: #f8fafc;
   border-top: 1px solid #f1f5f9;
   display: flex;
   justify-content: flex-end;
-  gap: 1rem;
+  gap: 0.75rem;
 }
 
 .task-edit-textarea {
