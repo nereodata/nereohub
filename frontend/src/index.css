@@ -678,8 +678,9 @@ main {
 .id-row-clean {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.7rem;
+  justify-content: space-between;
+  width: 100%;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #94a3b8;
   letter-spacing: 0.2px;
@@ -687,6 +688,7 @@ main {
 
 .task-id-text {
   color: #64748b;
+  font-size: 0.65rem;
 }
 
 .copy-icon-btn-subtle {
@@ -1067,14 +1069,14 @@ main {
 
 /* --- Status Markers Premium --- */
 .status-marker.interactive {
-  padding: 0.25rem 0.65rem;
-  border-radius: 16px;
+  padding: 0.25rem 0.6rem;
+  border-radius: 8px;
   background: #f1f5f9;
-  border: 1px solid transparent;
+  border: 1px solid #e2e8f0;
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.4rem;
+  gap: 0.3rem;
 }
 
 .status-marker.interactive:hover {
@@ -1084,10 +1086,7 @@ main {
 }
 
 .marker-dot {
-  width: 6px;
-  height: 6px;
-  border-radius: 50%;
-  box-shadow: 0 0 5px currentColor;
+  display: none;
 }
 
 .marker-label {

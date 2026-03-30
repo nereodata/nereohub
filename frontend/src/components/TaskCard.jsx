@@ -119,9 +119,10 @@ export const TaskCard = ({ item, onOpen, onUpdate, projectColor, showDetails = t
       
       <div className="card-main-body">
         <div className="id-row-clean">
-          <span className="task-id-text">{item.id}</span>
-          <button className="copy-icon-btn-subtle" onClick={handleCopyId} title="Copiar ID"><Copy size={11} /></button>
-          <span className="dot-sep">•</span>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.4rem' }}>
+            <span className="task-id-text">{item.id}</span>
+            <button className="copy-icon-btn-subtle" onClick={handleCopyId} title="Copiar ID"><Copy size={11} /></button>
+          </div>
           <span className={`type-tag-subtle ${typeClass}`}>{item.type || 'feature'}</span>
         </div>
         <h3 className="task-card-title">{item.title}</h3>
