@@ -788,11 +788,13 @@ main {
 .progress-stats-row {
   display: flex;
   justify-content: space-between;
-  font-size: 0.65rem;
-  font-weight: 800;
-  color: #cbd5e1;
-  margin-top: 0.5rem;
-  letter-spacing: 0.5px;
+  font-size: 0.58rem;
+  font-weight: 700;
+  color: #94a3b8;
+  margin-top: 0.4rem;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.8;
 }
 
 .task-card-footer {
