@@ -19,6 +19,12 @@ export const Sidebar = ({ currentTab, setTab, onRefresh, onManageProjects, lastU
       </div>
       <span className="logo-text">NereoHub</span>
     </div>
+
+    <ul className="nav-menu admin-menu">
+      <li className="nav-item" onClick={onManageProjects} title={collapsed ? "Gestionar Proyectos" : ""}>
+        <FolderCog size={18} />{!collapsed && <span>Gestionar Proyectos</span>}
+      </li>
+    </ul>
     <nav className="nav-menu">
       <li className={`nav-item ${currentTab === 'dashboard' ? 'active' : ''}`} onClick={() => setTab('dashboard')} title={collapsed ? "Dashboard" : ""}>
         <LayoutDashboard size={18} />{!collapsed && <span>Dashboard</span>}
@@ -33,14 +39,16 @@ export const Sidebar = ({ currentTab, setTab, onRefresh, onManageProjects, lastU
         <Layers size={18} />{!collapsed && <span>Plan de Ejecución</span>}
       </li>
     </nav>
-    <div className="sidebar-footer" style={{ padding: '1rem', borderTop: '1px solid rgba(255,255,255,0.1)' }}>
-      <button className="nav-item refresh-btn" onClick={onRefresh} style={{ width: '100%', background: 'transparent', border: 'none', textAlign: 'left' }} title={collapsed ? `Actualizar (${lastUpdated})` : ""}>
-        <RefreshCw size={18} className={collapsed ? "has-popup" : ""} />{!collapsed && <span>Actualizar</span>}
-      </button>
-      <button className="nav-item" onClick={onManageProjects} style={{ width: '100%', background: 'transparent', border: 'none', textAlign: 'left' }} title={collapsed ? "Proyectos" : ""}>
-        <FolderCog size={18} />{!collapsed && <span>Proyectos</span>}
-      </button>
-    </div>
+    <ul className="nav-menu footer-menu">
+      <li className="nav-item" onClick={onRefresh} title={collapsed ? `Actualizar (${lastUpdated})` : ""}>
+        <RefreshCw size={18} />{!collapsed && <span>Actualizar</span>}
+      </li>
+      {!collapsed && lastUpdated && (
+        <div className="last-updated-hint">
+          {lastUpdated}
+        </div>
+      )}
+    </ul>
   </aside>
 );
 
