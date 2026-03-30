@@ -644,29 +644,29 @@ main {
 /* --- Premium Task Cards --- */
 .premium-task-card {
   background: white;
-  border-radius: 18px;
-  padding: 1.75rem;
+  border-radius: 12px;
+  padding: 0.85rem 1rem;
   border: 1px solid #eef2f6;
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.04);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
   position: relative;
-  transition: all 0.5s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.3s ease;
   cursor: pointer;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.6rem;
 }
 
 .premium-task-card:hover {
-  transform: translateY(-8px) scale(1.01);
-  box-shadow: 0 30px 60px rgba(0,0,0,0.08);
-  border-color: var(--accent-tertiary);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+  border-color: #d1dae6;
 }
 
 .card-top-accent {
   position: absolute;
   top: 0; left: 0; right: 0;
-  height: 6px;
-  border-radius: 18px 18px 0 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
 }
 
 .card-main-body {
@@ -722,23 +722,23 @@ main {
 .type-tag-subtle.task { color: var(--type-task); border-color: rgba(139, 92, 246, 0.1); }
 
 .task-card-title {
-  font-size: 1.15rem;
+  font-size: 0.85rem;
   line-height: 1.4;
   color: #1e293b;
-  font-family: 'Outfit', sans-serif;
+  font-family: 'Inter', sans-serif;
   font-weight: 600;
-  letter-spacing: -0.2px;
+  letter-spacing: -0.1px;
 }
 
 .mini-meta-badge {
   display: flex;
   align-items: center;
-  gap: 0.35rem;
-  padding: 0.3rem 0.6rem;
+  gap: 0.25rem;
+  padding: 0.2rem 0.45rem;
   background: #f1f5f9;
   border: 1px solid transparent;
-  border-radius: 8px;
-  font-size: 0.7rem;
+  border-radius: 6px;
+  font-size: 0.6rem;
   font-weight: 700;
   color: #64748b;
   transition: all 0.2s;
@@ -797,8 +797,8 @@ main {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding-top: 1.25rem;
-  border-top: 1px solid #f8fafc;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f1f5f9;
 }
 
 .package-label-mini {
@@ -818,11 +818,11 @@ main {
   display: flex;
   flex-direction: row !important;
   overflow: hidden;
-  background: transparent; /* Full transparency */
+  background: transparent;
   width: 100%;
   height: 100%;
-  padding: 1.5rem 2rem 1.5rem 4.5rem; /* THE AIR */
-  gap: 2.5rem; /* THE SPACE BETWEEN */
+  padding: 1rem 1.5rem 1rem 2.5rem;
+  gap: 1.5rem;
 }
 
 .versions-mask-panel {
@@ -892,19 +892,19 @@ main {
 
 /* Sticky Backlog Sidebar */
 .plan-sidebar.exterior-glass {
-  width: 360px;
+  width: 300px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.35);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border: 1px solid rgba(255, 255, 255, 0.6);
-  border-radius: 32px;
+  background: rgba(255, 255, 255, 0.5);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  border-radius: 20px;
   display: flex;
   flex-direction: column;
   position: relative;
   z-index: 100;
   height: 100%;
-  box-shadow: 0 5px 25px rgba(0,0,0,0.02);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
   overflow: hidden;
 }
 
@@ -922,8 +922,8 @@ main {
 }
 
 .sidebar-header-compact {
-  padding: 1.5rem 1.75rem;
-  background: rgba(22, 55, 78, 0.9);
+  padding: 0.85rem 1.25rem;
+  background: var(--bg-sidebar);
   color: white;
   border-radius: 0;
   display: flex;
@@ -937,51 +937,52 @@ main {
   content: "";
   position: absolute;
   top: 0; left: 0; right: 0; height: 100%;
-  background: linear-gradient(135deg, rgba(255,255,255,0.05) 0%, transparent 100%);
+  background: linear-gradient(135deg, rgba(255,255,255,0.04) 0%, transparent 100%);
 }
 
 .sidebar-header-compact h3 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.1rem;
+  font-size: 0.75rem;
   font-weight: 700;
-  letter-spacing: 1.5px;
+  letter-spacing: 2px;
   text-transform: uppercase;
   position: relative;
+  opacity: 0.8;
 }
 
 .badge {
-  background: white;
-  color: #16374E;
-  font-size: 0.8rem;
+  background: rgba(255,255,255,0.15);
+  color: white;
+  font-size: 0.7rem;
   font-weight: 700;
-  padding: 0.25rem 0.75rem;
-  border-radius: 24px;
-  box-shadow: 0 4px 10px rgba(255,255,255,0.2);
+  padding: 0.2rem 0.6rem;
+  border-radius: 20px;
   position: relative;
+  border: 1px solid rgba(255,255,255,0.2);
 }
 
 .sidebar-scroll-container {
   flex: 1;
   overflow-y: auto;
-  padding: 1.5rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.5rem;
+  gap: 0.6rem;
 }
 
 /* Plan Columns (Glassmorphism) */
 .plan-column {
-  width: 360px;
+  width: 300px;
   flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.45);
+  background: rgba(255, 255, 255, 0.5);
   backdrop-filter: blur(16px);
   -webkit-backdrop-filter: blur(16px);
-  border-radius: 24px;
+  border-radius: 16px;
   display: flex;
   flex-direction: column;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 15px 40px rgba(0,0,0,0.04);
-  transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1);
+  border: 1px solid rgba(226, 232, 240, 0.8);
+  box-shadow: 0 4px 20px rgba(0,0,0,0.04);
+  transition: all 0.3s ease;
 }
 
 .plan-column.dragging-over {
@@ -992,38 +993,39 @@ main {
 }
 
 .column-header-compact {
-  padding: 1.75rem 2rem;
+  padding: 0.85rem 1.1rem;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid rgba(255,255,255,0.5);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .column-header-compact h4 {
   font-family: 'Outfit', sans-serif;
-  font-size: 1.35rem;
-  font-weight: 700;
-  color: #334155;
-  letter-spacing: -0.3px;
+  font-size: 0.75rem;
+  font-weight: 800;
+  color: #475569;
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .count-badge {
-  font-size: 0.8rem;
+  font-size: 0.65rem;
   font-weight: 700;
   color: #94a3b8;
-  background: rgba(255,255,255,0.8);
-  padding: 0.25rem 0.6rem;
-  border-radius: 10px;
-  border: 1px solid #f1f5f9;
+  background: #f1f5f9;
+  padding: 0.15rem 0.5rem;
+  border-radius: 8px;
+  border: 1px solid #e2e8f0;
 }
 
 .column-scroll-container {
   flex: 1;
   overflow-y: auto;
-  padding: 1.75rem;
+  padding: 0.75rem;
   display: flex;
   flex-direction: column;
-  gap: 1.75rem;
+  gap: 0.6rem;
 }
 
 /* --- Floating Menus Escape Clipping --- */
@@ -1065,34 +1067,34 @@ main {
 
 /* --- Status Markers Premium --- */
 .status-marker.interactive {
-  padding: 0.4rem 1rem;
-  border-radius: 24px;
+  padding: 0.25rem 0.65rem;
+  border-radius: 16px;
   background: #f1f5f9;
   border: 1px solid transparent;
-  transition: all 0.3s cubic-bezier(0.165, 0.84, 0.44, 1);
+  transition: all 0.2s ease;
   display: flex;
   align-items: center;
-  gap: 0.6rem;
+  gap: 0.4rem;
 }
 
 .status-marker.interactive:hover {
   background: white;
   border-color: #e2e8f0;
-  box-shadow: 0 6px 15px rgba(0,0,0,0.06);
-  transform: scale(1.05);
+  box-shadow: 0 3px 8px rgba(0,0,0,0.06);
 }
 
 .marker-dot {
-  width: 10px;
-  height: 10px;
+  width: 6px;
+  height: 6px;
   border-radius: 50%;
-  box-shadow: 0 0 8px currentColor;
+  box-shadow: 0 0 5px currentColor;
 }
 
 .marker-label {
-  font-size: 0.8rem;
+  font-size: 0.65rem;
   font-weight: 700;
-  letter-spacing: 0.2px;
+  letter-spacing: 0.3px;
+  text-transform: uppercase;
 }
 
 .marker-chevron {
