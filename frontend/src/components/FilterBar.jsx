@@ -24,6 +24,10 @@ export const MultiSelect = ({ label, options, selected, onChange, icon: Icon, se
       </div>
       {isOpen && (
         <div className="filter-select-dropdown">
+          <div className="fs-bulk-actions">
+            <button onClick={(e) => { e.stopPropagation(); onChange(options.map(o => o.value)); }}>Todos</button>
+            <button onClick={(e) => { e.stopPropagation(); onChange([]); }}>Ninguno</button>
+          </div>
           {searchable && (
             <div className="fs-search-container"><Search size={12} /><input type="text" placeholder="Buscar..." value={query} onChange={e => setQuery(e.target.value)} autoFocus /></div>
           )}
