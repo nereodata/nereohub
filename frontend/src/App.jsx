@@ -28,7 +28,8 @@ function App() {
   const [filters, setFilters] = useState({ 
     search: '', 
     statuses: ['backlog', 'planned', 'in_progress', 'blocked'], // Excluding 'completed' by default
-    versions: []
+    versions: [],
+    corruptOnly: false
   })
 
   // Sync versions filter when data loads
@@ -40,6 +41,20 @@ function App() {
       });
       if (allVers.size > 0) {
         setFilters(prev => ({...prev, versions: Array.from(allVers)}));
+      }
+    }
+  }, [data]);
+
+  // Sync selectedTask metadata when data refreshes
+  useEffect(() => {
+    if (selectedTask) {
+      const allItems = [...data.backlog, ...data.anomalies, ...data.masters];
+      const found = allItems.find(t => 
+        t.id === selectedTask.id && 
+        (t.project_id === (selectedTask.project_id || selectedTask.project))
+      );
+      if (found) {
+        setSelectedTask(found);
       }
     }
   }, [data]);
@@ -92,8 +107,20 @@ function App() {
 
   // Unified Filter Logic
   const applyFilters = useCallback((item) => {
+    if (filters.corruptOnly && !item.is_corrupt) return false
     if (selectedProject && (item.project_id !== selectedProject && item.project !== selectedProject)) return false
-    if (filters.search && !item.title?.toLowerCase().includes(filters.search.toLowerCase()) && !item.id.toLowerCase().includes(filters.search.toLowerCase())) return false
+    if (filters.search) {
+      const searchTerms = filters.search.toLowerCase().split(/\s+/).filter(Boolean)
+      const matchesAllTerms = searchTerms.every(term => {
+        const sid = String(item.id || '').toLowerCase()
+        const stit = (item.title || '').toLowerCase()
+        const sdesc = (item.description || '').toLowerCase()
+        const sbody = (item.content_body || '').toLowerCase()
+        const spkg = (item.package || '').toLowerCase()
+        return sid.includes(term) || stit.includes(term) || sdesc.includes(term) || sbody.includes(term) || spkg.includes(term)
+      })
+      if (!matchesAllTerms) return false
+    }
     
     // Status Filter
     if (filters.statuses && filters.statuses.length > 0) {
