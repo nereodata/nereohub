@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Search, Filter, Box, Tag, ChevronDown, Check } from 'lucide-react';
+import { Search, Filter, Box, Tag, ChevronDown, Check, AlertTriangle } from 'lucide-react';
 
 export const MultiSelect = ({ label, options, selected, onChange, icon: Icon, searchable = false }) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,6 +90,14 @@ export const FilterBar = ({ filters, setFilters, projects, selectedProject, setS
       <SingleSelect label="Proyecto" icon={Box} options={projectOptions} selected={selectedProject} onChange={setSelectedProject} />
       <MultiSelect label="Estado" icon={Filter} options={statusOptions} selected={filters.statuses || []} onChange={(s) => setFilters({...filters, statuses: s})} />
       <MultiSelect label="Versión" icon={Tag} options={versionOptions} selected={filters.versions || []} onChange={(v) => setFilters({...filters, versions: v})} searchable={true} />
+      
+      <button 
+        className={`filter-btn-check ${filters.corruptOnly ? 'active' : ''}`}
+        onClick={() => setFilters({...filters, corruptOnly: !filters.corruptOnly})}
+        title="Mostrar solo tareas con errores de metadatos"
+      >
+        <AlertTriangle size={16} /> 
+      </button>
     </div>
   );
 };

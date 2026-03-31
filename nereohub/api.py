@@ -405,6 +405,90 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         {"backlog", "planned", "in_progress", "completed", "blocked"}
     )
 
+    @app.post("/api/task")
+    async def api_create_task(body: dict = Body(...)):
+        project_id = body.get("project_id") or body.get("project")
+        task_id = body.get("id")
+        title = body.get("title") or "Nueva Tarea"
+        t_type = body.get("type") or "feature"
+
+        if not project_id:
+            raise HTTPException(status_code=400, detail="Falta project_id")
+        if not task_id:
+            raise HTTPException(status_code=400, detail="Falta task_id")
+
+        projects = config.get_projects()
+        project_root = None
+        for p in projects:
+            if p["name"] == project_id:
+                project_root = Path(p["root"])
+                break
+        if not project_root:
+            raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+        search_dirs = get_plan_search_dirs(project_root)
+        if not search_dirs:
+            target_dir = project_root / "plan"
+        else:
+            # Prefer 'master' or first available
+            target_dir = search_dirs[0][0]
+            for d, lbl in search_dirs:
+                if lbl == "master":
+                    target_dir = d
+                    break
+
+        target_dir.mkdir(parents=True, exist_ok=True)
+        filename = f"{task_id}.md"
+        target_file = target_dir / filename
+
+        if target_file.exists():
+            raise HTTPException(status_code=400, detail=f"La tarea {task_id} ya existe")
+
+        content = f"---\nid: {task_id}\ntitle: {title}\ntype: {t_type}\nstatus: backlog\nweight: 100\n---\n\nNueva tarea creada desde NereoHub.\n"
+        with open(target_file, "w", encoding="utf-8") as f:
+            f.write(content)
+
+        return {"status": "ok", "id": task_id}
+
+    @app.post("/api/save-content")
+    async def save_content(body: dict = Body(...)):
+        project_id = body.get("project_id") or body.get("project")
+        task_id = body.get("id")
+        content = body.get("content")
+        if not project_id or not task_id or content is None:
+            raise HTTPException(
+                status_code=400,
+                detail="Missing required fields: project_id, id, content",
+            )
+
+        projects = config.get_projects()
+        project_root = None
+        for p in projects:
+            if p["name"] == project_id:
+                project_root = Path(p["root"])
+                break
+        if not project_root or not project_root.exists():
+            raise HTTPException(status_code=404, detail="Proyecto no encontrado")
+
+        target_file = find_task_file(project_root, task_id)
+        if not target_file:
+            raise HTTPException(
+                status_code=404, detail=f"Task file for {task_id} not found"
+            )
+
+        # Security check
+        try:
+            target_file.resolve().relative_to(project_root.resolve())
+        except ValueError:
+            raise HTTPException(status_code=403, detail="Ruta no permitida")
+
+        try:
+            with open(target_file, "w", encoding="utf-8") as f:
+                f.write(content)
+            return {"status": "ok", "id": task_id}
+        except Exception as e:
+            raise HTTPException(status_code=500, detail=str(e))
+
     @app.post("/api/update_task")
     async def update_task(task_data: dict = Body(...)):
         task_id = task_data.get("id")
