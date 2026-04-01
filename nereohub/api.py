@@ -401,7 +401,6 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                 plans.append(parsed)
         return plans
 
-        return plans
 
     @app.post("/api/task")
     async def api_create_task(body: dict = Body(...)):
@@ -521,9 +520,9 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                 content = f.read()
             if "weight" in task_data:
                 new_weight = task_data["weight"]
-                if re.search(r"^weight:\s*\d+", content, re.MULTILINE):
+                if re.search(r"^weight:\s*.*$", content, re.MULTILINE):
                     content = re.sub(
-                        r"^weight:\s*\d+",
+                        r"^weight:\s*.*$",
                         f"weight: {new_weight}",
                         content,
                         count=1,
@@ -535,9 +534,9 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                     )
             if "version" in task_data:
                 new_version = task_data["version"]
-                if re.search(r"^version:\s*[\"']?.*?[\"']?$", content, re.MULTILINE):
+                if re.search(r"^version:\s*.*$", content, re.MULTILINE):
                     content = re.sub(
-                        r"^version:\s*[\"']?.*?[\"']?$",
+                        r"^version:\s*.*$",
                         f'version: "{new_version}"',
                         content,
                         count=1,
