@@ -8,15 +8,31 @@ import { useExports } from './hooks/useExports'
 import { ProjectManager, TaskCreator } from './components/ProjectModals'
 import { UnifiedHeader } from './components/UnifiedHeader'
 
+// Persistence keys
+const STORAGE_KEY = 'NereoHub_AppState'
+
 function App() {
-  const [currentTab, setTab] = useState('plan')
+  
+  // Load initial state
+  const getInitialState = (key, defaultValue) => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY)
+      if (saved) {
+        const parsed = JSON.parse(saved)
+        if (parsed[key] !== undefined) return parsed[key]
+      }
+    } catch (e) { console.error('Error loading state', e) }
+    return defaultValue
+  }
+
+  const [currentTab, setTab] = useState(() => getInitialState('currentTab', 'plan'))
   const [data, setData] = useState({ projects: [], anomalies: [], backlog: [], masters: [], stats: {} })
-  const [selectedProject, setSelectedProject] = useState('')
+  const [selectedProject, setSelectedProject] = useState(() => getInitialState('selectedProject', ''))
   const [lastUpdated, setLastUpdated] = useState('')
   const [loading, setLoading] = useState(false)
-  const [sidebarOpen, setSidebarOpen] = useState(true)
-  const [backlogOpen, setBacklogOpen] = useState(true)
-  const [showDetails, setShowDetails] = useState(true)
+  const [sidebarOpen, setSidebarOpen] = useState(() => getInitialState('sidebarOpen', true))
+  const [backlogOpen, setBacklogOpen] = useState(() => getInitialState('backlogOpen', true))
+  const [showDetails, setShowDetails] = useState(() => getInitialState('showDetails', true))
 
   // Modals
   const [modalOpen, setModalOpen] = useState(false)
@@ -25,22 +41,41 @@ function App() {
   const [taskCreatorOpen, setTaskCreatorOpen] = useState(false)
 
   // Combined Filters (Global)
-  const [filters, setFilters] = useState({ 
+  const [filters, setFilters] = useState(() => getInitialState('filters', { 
     search: '', 
-    statuses: ['backlog', 'planned', 'in_progress', 'blocked'], // Excluding 'completed' by default
+    statuses: ['backlog', 'planned', 'in_progress', 'blocked'], // Excluding 'completed' and 'cancelled' by default
     versions: [],
     corruptOnly: false
-  })
+  }))
 
-  // Sync versions filter when data loads
+  // Persistence Effect
+  useEffect(() => {
+    const stateToSave = {
+      currentTab,
+      selectedProject,
+      sidebarOpen,
+      backlogOpen,
+      showDetails,
+      filters
+    }
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(stateToSave))
+  }, [currentTab, selectedProject, sidebarOpen, backlogOpen, showDetails, filters])
+
+  // Sync versions filter when data loads ONLY if it hasn't been set before (is empty)
   useEffect(() => {
     if (data.projects.length > 0 && filters.versions.length === 0) {
-      const allVers = new Set();
-      [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
-        if (t.version && t.version !== 'backlog') allVers.add(t.version);
-      });
-      if (allVers.size > 0) {
-        setFilters(prev => ({...prev, versions: Array.from(allVers)}));
+      // Check if we already have a saved filter state with versions in localStorage
+      const saved = localStorage.getItem(STORAGE_KEY)
+      const hasSavedVersions = saved && JSON.parse(saved).filters?.versions?.length > 0
+      
+      if (!hasSavedVersions) {
+        const allVers = new Set();
+        [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
+          if (t.version && t.version !== 'backlog') allVers.add(t.version);
+        });
+        if (allVers.size > 0) {
+          setFilters(prev => ({...prev, versions: Array.from(allVers)}));
+        }
       }
     }
   }, [data]);
@@ -106,8 +141,8 @@ function App() {
   }
 
   // Unified Filter Logic
-  const applyFilters = useCallback((item) => {
-    if (filters.corruptOnly && !item.is_corrupt) return false
+  const applyFilters = useCallback((item, ignoreCorruptFilter = false) => {
+    if (!ignoreCorruptFilter && filters.corruptOnly && !item.is_corrupt) return false
     if (selectedProject && (item.project_id !== selectedProject && item.project !== selectedProject)) return false
     if (filters.search) {
       const searchTerms = filters.search.toLowerCase().split(/\s+/).filter(Boolean)
@@ -140,6 +175,11 @@ function App() {
     return true
   }, [filters, selectedProject])
 
+  const corridorCorruptCount = useMemo(() => {
+    const allItems = [...data.backlog, ...data.anomalies, ...data.masters];
+    return allItems.filter(t => t.is_corrupt && applyFilters(t, true)).length;
+  }, [data, applyFilters]);
+
   const allVersions = useMemo(() => {
     const v = new Set();
     [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
@@ -169,6 +209,7 @@ function App() {
           exportExcel={exportExcel} exportPDF={exportPDF} exportCSV={exportCSV}
           currentTab={currentTab} backlogOpen={backlogOpen} setBacklogOpen={setBacklogOpen}
           showDetails={showDetails} setShowDetails={setShowDetails}
+          corruptCount={corridorCorruptCount}
         />
         
         {loading && data.projects.length === 0 ? (
