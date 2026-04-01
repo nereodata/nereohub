@@ -43,13 +43,80 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
     if (source.droppableId === destination.droppableId && source.index === destination.index) return;
     const [projectId, id] = draggableId.split('|');
     
-    // Extract version from droppableId (handle version|index)
-    const destDroppableId = destination.droppableId;
-    const newVersion = destDroppableId.includes('|') ? destDroppableId.split('|')[0] : destDroppableId;
+    // 1. Determine target list and parameters
+    let newVersion = '';
+    let targetList = [];
+    let targetGlobalIndex = destination.index;
+
+    if (destination.droppableId === 'backlog') {
+      newVersion = 'backlog';
+      targetList = [...backlogOnlyItems].sort((a,b) => (a.weight || 100) - (b.weight || 100));
+    } else {
+      const destDroppableId = destination.droppableId;
+      const separatorIdx = destDroppableId.lastIndexOf('|');
+      
+      if (separatorIdx !== -1) {
+        newVersion = destDroppableId.substring(0, separatorIdx);
+        const colIndex = parseInt(destDroppableId.substring(separatorIdx + 1)) || 0;
+        
+        const tasks = getVersionTasks(newVersion).sort((a,b) => (a.weight || 100) - (b.weight || 100));
+        const numCols = Math.min(maxColsPerVersion, Math.max(1, Math.ceil(tasks.length / 4)));
+        
+        targetList = tasks;
+        targetGlobalIndex = destination.index * numCols + colIndex;
+      } else {
+        // Fallback for simple ID
+        newVersion = destDroppableId;
+        targetList = getVersionTasks(newVersion).sort((a,b) => (a.weight || 100) - (b.weight || 100));
+        targetGlobalIndex = destination.index;
+      }
+    }
+
+    // 2. Adjust target list by removing item if it's already there
+    let sourceVersion = '';
+    if (source.droppableId === 'backlog') {
+      sourceVersion = 'backlog';
+    } else {
+      const sIdx = source.droppableId.lastIndexOf('|');
+      sourceVersion = sIdx !== -1 ? source.droppableId.substring(0, sIdx) : source.droppableId;
+    }
     
-    const updates = { version: newVersion };
+    const movingInSameGlobalList = (newVersion === sourceVersion);
+    
+    let listForWeight = [...targetList];
+    if (movingInSameGlobalList) {
+      const idxInList = listForWeight.findIndex(t => t.id === id && (t.project_id === projectId || t.project === projectId));
+      if (idxInList !== -1) {
+        listForWeight.splice(idxInList, 1);
+      }
+    }
+
+    // Clamp index
+    targetGlobalIndex = Math.min(targetGlobalIndex, listForWeight.length);
+
+    // 3. Calculate Weight based on User Logic
+    let newWeight = 100;
+    if (listForWeight.length === 0) {
+      newWeight = 100;
+    } else if (targetGlobalIndex === 0) {
+      const nextW = listForWeight[0].weight || 100;
+      newWeight = Math.max(1, nextW - 10);
+    } else if (targetGlobalIndex >= listForWeight.length) {
+      const prevW = listForWeight[listForWeight.length - 1].weight || 100;
+      newWeight = prevW + 10;
+    } else {
+      const prevW = listForWeight[targetGlobalIndex - 1].weight || 100;
+      const nextW = listForWeight[targetGlobalIndex].weight || 100;
+      newWeight = Math.ceil((prevW + nextW) / 2);
+    }
+
+    const updates = { version: newVersion, weight: newWeight };
     if (source.droppableId === 'backlog' && newVersion !== 'backlog') updates.status = 'planned';
-    if (newVersion === 'backlog') updates.status = 'backlog';
+    if (newVersion === 'backlog') {
+      updates.status = 'backlog';
+      updates.version = 'backlog';
+    }
+    
     onUpdate(id, updates, projectId);
   };
 
@@ -97,7 +164,7 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
                       </div>
                       <div className="version-multi-columns-content">
                         {colGroups.map((colTasks, i) => (
-                          <Droppable droppableId={numCols > 1 ? `${v}|${i}` : v} key={`${v}|${i}`}>
+                          <Droppable droppableId={`${v}|${i}`} key={`${v}|${i}`}>
                             {(provided, snapshot) => (
                               <div className={`sub-column-list-clean ${snapshot.isDraggingOver ? 'dragging-over' : ''}`} {...provided.droppableProps} ref={provided.innerRef}>
                                 {colTasks.map((item, index) => (
