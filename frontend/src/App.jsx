@@ -143,43 +143,62 @@ function App() {
 
   // Unified Filter Logic
   const applyFilters = useCallback((item, ignoreCorruptFilter = false) => {
-    if (!ignoreCorruptFilter && filters.corruptOnly && !item.is_corrupt) return false
-    if (selectedProject && (item.project_id !== selectedProject && item.project !== selectedProject)) return false
-    if (filters.search) {
-      const searchTerms = filters.search.toLowerCase().split(/\s+/).filter(Boolean)
-      const matchesAllTerms = searchTerms.every(term => {
-        const sid = String(item.id || '').toLowerCase()
-        const stit = (item.title || '').toLowerCase()
-        const sdesc = (item.description || '').toLowerCase()
-        const sbody = (item.content_body || '').toLowerCase()
-        const spkg = (item.package || '').toLowerCase()
-        return sid.includes(term) || stit.includes(term) || sdesc.includes(term) || sbody.includes(term) || spkg.includes(term)
-      })
-      if (!matchesAllTerms) return false
-    }
+    const isCorruptMode = !ignoreCorruptFilter && filters.corruptOnly;
     
-    // Status Filter
-    if (filters.statuses && filters.statuses.length > 0) {
-      let s = (item.status || 'backlog').toLowerCase()
-      if (s === 'open') s = 'backlog'
-      if (s === 'done') s = 'completed'
-      if (s === 'en_marcha') s = 'in_progress'
-      if (!filters.statuses.includes(s)) return false
+    // 1. If in "corrupt only" mode, but item is not corrupt, filter it out
+    if (isCorruptMode && !item.is_corrupt) return false;
+    
+    // 2. Project Filter
+    if (selectedProject && (item.project_id !== selectedProject && item.project !== selectedProject)) return false;
+    
+    // 3. Search Filter
+    if (filters.search) {
+      const searchTerms = filters.search.toLowerCase().split(/\s+/).filter(Boolean);
+      const matchesAllTerms = searchTerms.every(term => {
+        const sid = String(item.id || '').toLowerCase();
+        const stit = (item.title || '').toLowerCase();
+        const sdesc = (item.description || '').toLowerCase();
+        const sbody = (item.content_body || '').toLowerCase();
+        const spkg = (item.package || '').toLowerCase();
+        return sid.includes(term) || stit.includes(term) || sdesc.includes(term) || sbody.includes(term) || spkg.includes(term);
+      });
+      if (!matchesAllTerms) return false;
     }
 
-    // Version Filter
+    // 4. Bypass for corrupt items
+    // If we are specifically looking for corrupt items or calculating their presence,
+    // we ignore status/version filters since they are secondary to the error state.
+    if (item.is_corrupt && (filters.corruptOnly || ignoreCorruptFilter)) return true;
+
+    // 5. Status Filter
+    if (filters.statuses && filters.statuses.length > 0) {
+      let s = (item.status || 'backlog').toLowerCase();
+      if (s === 'open') s = 'backlog';
+      if (s === 'done') s = 'completed';
+      if (s === 'en_marcha') s = 'in_progress';
+      if (!filters.statuses.includes(s)) return false;
+    }
+
+    // 6. Version Filter
     if (filters.versions && filters.versions.length > 0) {
-       const v = item.version || 'backlog'
-       if (v !== 'backlog' && !filters.versions.includes(v)) return false
+       const v = item.version || 'backlog';
+       if (v !== 'backlog' && !filters.versions.includes(v)) return false;
     }
     
-    return true
-  }, [filters, selectedProject])
+    return true;
+  }, [filters, selectedProject]);
 
   const corridorCorruptCount = useMemo(() => {
-    const allItems = [...data.backlog, ...data.anomalies, ...data.masters];
-    return allItems.filter(t => t.is_corrupt && applyFilters(t, true)).length;
-  }, [data, applyFilters]);
+    let source = [];
+    if (currentTab === 'plan') {
+      source = [...data.backlog, ...data.anomalies, ...data.masters];
+    } else if (currentTab === 'anomalies') {
+      source = data.anomalies;
+    } else {
+      source = data.backlog;
+    }
+    return source.filter(t => t.is_corrupt && applyFilters(t, true)).length;
+  }, [data, applyFilters, currentTab]);
 
   const allVersions = useMemo(() => {
     const v = new Set();
@@ -192,7 +211,7 @@ function App() {
   const listItems = useMemo(() => {
     if (currentTab === 'dashboard') return []
     let source = currentTab === 'anomalies' ? data.anomalies : data.backlog
-    return source.filter(applyFilters).sort((a,b) => (a.weight || 100) - (b.weight || 100))
+    return source.filter(t => applyFilters(t)).sort((a,b) => (a.weight || 100) - (b.weight || 100))
   }, [data, currentTab, applyFilters])
 
   return (
