@@ -123,10 +123,11 @@ function App() {
       return newData
     })
     try {
-      await fetch('/api/update_task', {
+      const res = await fetch('/api/update_task', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ id, ...fields, project_id: projectId })
       })
+      if (!res.ok) throw new Error('Update failed');
     } catch (err) { fetchData() }
   }, [fetchData])
 

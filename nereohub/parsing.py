@@ -13,8 +13,12 @@ def parse_markdown_frontmatter(file_path: Path, project_root: Path) -> Optional[
     Includes logic to detect 'corrupt' files (missing fields or duplicate attributes).
     """
     try:
-        with open(file_path, "r", encoding="utf-8") as f:
-            content = f.read()
+        try:
+            with open(file_path, "r", encoding="utf-8") as f:
+                content = f.read()
+        except UnicodeDecodeError:
+            with open(file_path, "r", encoding="iso-8859-1") as f:
+                content = f.read()
         
         match = re.match(r"^---\s*\n(.*?)\n---\s*\n", content, re.DOTALL)
         if not match:

@@ -252,8 +252,12 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             raise HTTPException(status_code=403, detail="Ruta no permitida")
         if full_path.exists() and full_path.is_file():
             try:
-                with open(full_path, "r", encoding="utf-8") as f:
-                    return {"content": f.read()}
+                try:
+                    with open(full_path, "r", encoding="utf-8") as f:
+                        return {"content": f.read()}
+                except UnicodeDecodeError:
+                    with open(full_path, "r", encoding="iso-8859-1") as f:
+                        return {"content": f.read()}
             except Exception as e:
                 return {"content": f"Error reading file: {e}"}
         raise HTTPException(status_code=404, detail="File not found")
@@ -516,8 +520,12 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                 status_code=404, detail=f"Task file for {task_id} not found"
             )
         try:
-            with open(target_file, "r", encoding="utf-8") as f:
-                content = f.read()
+            try:
+                with open(target_file, "r", encoding="utf-8") as f:
+                    content = f.read()
+            except UnicodeDecodeError:
+                with open(target_file, "r", encoding="iso-8859-1") as f:
+                    content = f.read()
             if "weight" in task_data:
                 new_weight = task_data["weight"]
                 if re.search(r"^weight:\s*.*$", content, re.MULTILINE):
