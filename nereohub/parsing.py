@@ -5,6 +5,8 @@ from typing import Optional
 
 import yaml
 
+from . import config
+
 
 def parse_markdown_frontmatter(file_path: Path, project_root: Path) -> Optional[dict]:
     """Parse a .md file with --- frontmatter --- and return dict.
@@ -43,7 +45,14 @@ def parse_markdown_frontmatter(file_path: Path, project_root: Path) -> Optional[
                 fm["is_corrupt"] = True
                 fm["corruption_errors"].append(f"Falta campo requerido: {req}")
         
-        # 3. Extract body text after frontmatter as 'content_body' for filtering
+        # 3. Check for valid status
+        if "status" in fm:
+            status_val = str(fm["status"]).strip().lower()
+            if status_val not in config.ALLOWED_STATUSES:
+                fm["is_corrupt"] = True
+                fm["corruption_errors"].append(f"Estado '{fm['status']}' no permitido")
+        
+        # 4. Extract body text after frontmatter as 'content_body' for filtering
         body_text = content[match.end():].strip()
         fm["content_body"] = body_text
             

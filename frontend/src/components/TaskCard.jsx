@@ -2,23 +2,22 @@ import React, { useState, useEffect, useRef } from 'react';
 import { createPortal } from 'react-dom';
 import { Copy, ChevronDown, Tag, Hash, Search, Plus, AlertTriangle } from 'lucide-react';
 
-const FloatingSelect = ({ anchorRect, options, onSelect, onClose, allowCustom = false, initialValue = '' }) => {
+const FloatingSelect = ({ anchorRect, options, onSelect, onClose, allowCustom = false, initialValue = '', showSearch = true }) => {
   const [filter, setFilter] = useState(initialValue);
   const inputRef = useRef(null);
 
   useEffect(() => {
-    if (inputRef.current) {
+    if (showSearch && inputRef.current) {
       inputRef.current.focus();
-      // Select the text for easier editing
       inputRef.current.select();
     }
-  }, []);
+  }, [showSearch]);
 
   if (!anchorRect) return null;
   
-  const filtered = options.filter(opt => 
-    opt.toLowerCase().includes(filter.toLowerCase())
-  );
+  const filtered = showSearch 
+    ? options.filter(opt => opt.toLowerCase().includes(filter.toLowerCase()))
+    : options;
 
   const style = {
     position: 'fixed',
@@ -40,31 +39,33 @@ const FloatingSelect = ({ anchorRect, options, onSelect, onClose, allowCustom = 
   return createPortal(
     <>
       <div className="portal-overlay-clear" onClick={onClose} />
-      <div className="mini-select-portal floating" style={style}>
-        <div className="mini-select-search">
-          <Search size={14} />
-          <input 
-            ref={inputRef}
-            type="text" 
-            placeholder="Filtrar o nuevo..."
-            value={filter}
-            onChange={e => setFilter(e.target.value)}
-            onKeyDown={e => {
-              if (e.key === 'Enter' && filter.trim()) {
-                handleSelect(e, filter.trim());
-              }
-              if (e.key === 'Escape') onClose();
-            }}
-            onClick={e => e.stopPropagation()}
-          />
-        </div>
+      <div className={`mini-select-portal floating ${!showSearch ? 'no-search' : ''}`} style={style}>
+        {showSearch && (
+          <div className="mini-select-search">
+            <Search size={14} />
+            <input 
+              ref={inputRef}
+              type="text" 
+              placeholder="Filtrar o nuevo..."
+              value={filter}
+              onChange={e => setFilter(e.target.value)}
+              onKeyDown={e => {
+                if (e.key === 'Enter' && filter.trim()) {
+                  handleSelect(e, filter.trim());
+                }
+                if (e.key === 'Escape') onClose();
+              }}
+              onClick={e => e.stopPropagation()}
+            />
+          </div>
+        )}
         <div className="mini-select-list">
           {filtered.map(opt => (
             <div key={opt} className="mini-select-item" onClick={(e) => handleSelect(e, opt)}>
               <span>{opt}</span>
             </div>
           ))}
-          {allowCustom && filter.trim() && !options.some(o => o.toLowerCase() === filter.toLowerCase().trim()) && (
+          {showSearch && allowCustom && filter.trim() && !options.some(o => o.toLowerCase() === filter.toLowerCase().trim()) && (
             <div className="mini-select-item new-value" onClick={(e) => handleSelect(e, filter.trim())}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <Plus size={12} />
@@ -134,7 +135,7 @@ export const TaskCard = ({ item, onOpen, onUpdate, projectColor, showDetails = t
     ? Math.min(100, Math.round((item.actual_effort / item.estimated_effort) * 100))
     : (statusDisplay === 'completed' || statusDisplay === 'done' ? 100 : 0);
 
-  const availableStatuses = ['backlog', 'planned', 'in_progress', 'blocked', 'completed'];
+  const availableStatuses = ['backlog', 'planned', 'in_progress', 'blocked', 'completed', 'cancelled'];
 
   return (
     <div className={`premium-task-card ${typeClass} ${!showDetails ? 'is-compact' : ''} ${item.is_corrupt ? 'is-corrupt' : ''}`} onClick={() => onOpen(item)}>
@@ -246,7 +247,7 @@ export const TaskCard = ({ item, onOpen, onUpdate, projectColor, showDetails = t
           <span className="marker-dot"></span><span className="marker-label">{item.status || 'open'}</span>
         </div>
         {activeMenu === 'status' && (
-          <FloatingSelect anchorRect={anchorRect} options={availableStatuses} onSelect={(e, val) => { closeMenu(); onUpdate(item.id, { status: val }, item.project_id || item.project); }} onClose={closeMenu} initialValue={item.status || 'open'} />
+          <FloatingSelect anchorRect={anchorRect} options={availableStatuses} onSelect={(e, val) => { closeMenu(); onUpdate(item.id, { status: val }, item.project_id || item.project); }} onClose={closeMenu} initialValue={item.status || 'open'} showSearch={false} />
         )}
         <div className="package-label-mini">{item.package !== 'master' ? item.package : 'MASTER'}</div>
       </div>

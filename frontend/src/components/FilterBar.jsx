@@ -77,8 +77,15 @@ export const SingleSelect = ({ label, options, selected, onChange, icon: Icon })
   );
 };
 
-export const FilterBar = ({ filters, setFilters, projects, selectedProject, setSelectedProject, data }) => {
-  const statusOptions = [{ value: 'backlog', label: 'Backlog' }, { value: 'planned', label: 'Planificado' }, { value: 'in_progress', label: 'En Curso' }, { value: 'blocked', label: 'Bloqueado' }, { value: 'completed', label: 'Completado' }];
+export const FilterBar = ({ filters, setFilters, projects, selectedProject, setSelectedProject, data, corruptCount }) => {
+  const statusOptions = [{ value: 'backlog', label: 'Backlog' }, { value: 'planned', label: 'Planificado' }, { value: 'in_progress', label: 'En Curso' }, { value: 'blocked', label: 'Bloqueado' }, { value: 'completed', label: 'Completado' }, { value: 'cancelled', label: 'Cancelado' }];
+  
+  useEffect(() => {
+    if (corruptCount === 0 && filters.corruptOnly) {
+      setFilters(prev => ({ ...prev, corruptOnly: false }));
+    }
+  }, [corruptCount, filters.corruptOnly, setFilters]);
+
   const versionOptions = React.useMemo(() => {
     const versions = new Set();
     [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => { if (t.version && t.version !== 'backlog') versions.add(t.version); });
@@ -91,13 +98,16 @@ export const FilterBar = ({ filters, setFilters, projects, selectedProject, setS
       <MultiSelect label="Estado" icon={Filter} options={statusOptions} selected={filters.statuses || []} onChange={(s) => setFilters({...filters, statuses: s})} />
       <MultiSelect label="Versión" icon={Tag} options={versionOptions} selected={filters.versions || []} onChange={(v) => setFilters({...filters, versions: v})} searchable={true} />
       
-      <button 
-        className={`filter-btn-check ${filters.corruptOnly ? 'active' : ''}`}
-        onClick={() => setFilters({...filters, corruptOnly: !filters.corruptOnly})}
-        title="Mostrar solo tareas con errores de metadatos"
-      >
-        <AlertTriangle size={16} /> 
-      </button>
+      {corruptCount > 0 && (
+        <button 
+          className={`filter-btn-check ${filters.corruptOnly ? 'active' : ''}`}
+          onClick={() => setFilters({...filters, corruptOnly: !filters.corruptOnly})}
+          title={`Mostrar ${corruptCount} tareas con errores de metadatos`}
+        >
+          <AlertTriangle size={16} /> 
+          <span className="corrupt-badge">{corruptCount}</span>
+        </button>
+      )}
     </div>
   );
 };

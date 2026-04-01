@@ -5,7 +5,7 @@ import { FilterBar } from './FilterBar';
 export const UnifiedHeader = ({ 
   title, onNewTask, filters, setFilters, data, projects, selectedProject, setSelectedProject, 
   exportExcel, exportPDF, exportCSV, currentTab, showDetails, setShowDetails,
-  backlogOpen, setBacklogOpen
+  backlogOpen, setBacklogOpen, corruptCount
 }) => {
   return (
     <header className="unify-header">
@@ -34,7 +34,11 @@ export const UnifiedHeader = ({
         </div>
       </div>
       <div className="header-secondary-row">
-        <FilterBar filters={filters} setFilters={setFilters} projects={projects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} data={data} />
+        <FilterBar 
+          filters={filters} setFilters={setFilters} data={data} 
+          projects={projects} selectedProject={selectedProject} setSelectedProject={setSelectedProject} 
+          corruptCount={corruptCount}
+        />
         <div className="export-actions">
            <button className="btn-export-subtle" onClick={exportPDF}><Download size={14} /> PDF</button>
            <button className="btn-export-subtle" onClick={exportExcel}><Download size={14} /> EXCEL</button>

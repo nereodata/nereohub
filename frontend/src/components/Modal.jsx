@@ -69,41 +69,42 @@ export const Modal = ({ isOpen, item, onClose, onRefreshData }) => {
           </div>
         </header>
 
-        <div className="modal-body-scroll">
-          {item && (
-            <div className="task-metadata-section">
-              <div className="metadata-item-premium" title="Proyecto">
-                <span className="metadata-label-clean"><Tag size={12}/> PROYECTO</span>
-                <span className="metadata-value-clean">{item.project_id || item.project}</span>
-              </div>
-              <div className="metadata-item-premium" title="Tipo de Tarea">
-                <span className="metadata-label-clean"><Activity size={12}/> TIPO</span>
-                <span className="metadata-value-clean" style={{ color: `var(--type-${(item.type || 'feature').toLowerCase()})` }}>{item.type || 'feature'}</span>
-              </div>
-              <div className="metadata-item-premium" title="Estado">
-                <span className="metadata-label-clean"><Target size={12}/> ESTADO</span>
-                <span className={`metadata-value-clean status-badge ${(item.status || 'open').toLowerCase()}`}>
-                  {item.status || 'open'}
-                </span>
-              </div>
-              <div className="metadata-item-premium" title="Versión">
-                <span className="metadata-label-clean"><Clock size={12}/> VERSIÓN</span>
-                <span className="metadata-value-clean">{item.version || 'backlog'}</span>
-              </div>
-              <div className="metadata-item-premium" title="Peso / Prioridad">
-                <span className="metadata-label-clean"><Hash size={12}/> PESO</span>
-                <span className="metadata-value-clean">{item.weight || 0}</span>
-              </div>
-              <div className="metadata-item-premium" title="Paquete / Módulo">
-                <span className="metadata-label-clean"><Package size={12}/> PAQUETE</span>
-                <span className="metadata-value-clean">{item.package || 'MASTER'}</span>
-              </div>
-              <div className="metadata-item-premium" title="Esfuerzo (Real / Estimado)">
-                 <span className="metadata-label-clean"><Activity size={12}/> ESFUERZO</span>
-                 <span className="metadata-value-clean">{item.actual_effort || 0}h / {item.estimated_effort || 0}h</span>
-              </div>
+        {item && (
+          <div className="task-metadata-subheader">
+            <div className="metadata-item-premium" title="Proyecto">
+              <span className="metadata-label-clean"><Tag size={12}/> PROYECTO</span>
+              <span className="metadata-value-clean">{item.project_id || item.project}</span>
             </div>
-          )}
+            <div className="metadata-item-premium" title="Tipo de Tarea">
+              <span className="metadata-label-clean"><Activity size={12}/> TIPO</span>
+              <span className="metadata-value-clean" style={{ color: `var(--type-${(item.type || 'feature').toLowerCase()})` }}>{item.type || 'feature'}</span>
+            </div>
+            <div className="metadata-item-premium" title="Estado">
+              <span className="metadata-label-clean"><Target size={12}/> ESTADO</span>
+              <span className={`metadata-value-clean status-badge ${(item.status || 'open').toLowerCase()}`}>
+                {item.status || 'open'}
+              </span>
+            </div>
+            <div className="metadata-item-premium" title="Versión">
+              <span className="metadata-label-clean"><Clock size={12}/> VERSIÓN</span>
+              <span className="metadata-value-clean">{item.version || 'backlog'}</span>
+            </div>
+            <div className="metadata-item-premium" title="Peso / Prioridad">
+              <span className="metadata-label-clean"><Hash size={12}/> PESO</span>
+              <span className="metadata-value-clean">{item.weight || 0}</span>
+            </div>
+            <div className="metadata-item-premium" title="Paquete / Módulo">
+              <span className="metadata-label-clean"><Package size={12}/> PAQUETE</span>
+              <span className="metadata-value-clean">{item.package || 'MASTER'}</span>
+            </div>
+            <div className="metadata-item-premium" title="Esfuerzo (Real / Estimado)">
+               <span className="metadata-label-clean"><Activity size={12}/> ESFUERZO</span>
+               <span className="metadata-value-clean">{item.actual_effort || 0}h / {item.estimated_effort || 0}h</span>
+            </div>
+          </div>
+        )}
+
+        <div className="modal-body-scroll">
           
           {loading ? (
             <div style={{ display: 'flex', justifyContent: 'center', padding: '4rem', color: '#94a3b8' }}>Cargando contenido...</div>

@@ -15,6 +15,10 @@ import yaml
 
 HUB_NAME = "NereoHub"
 
+ALLOWED_STATUSES = frozenset(
+    {"backlog", "planned", "in_progress", "blocked", "completed", "cancelled"}
+)
+
 
 def get_app_data_dir() -> Path:
     """Return the Hub application data directory (cross-platform)."""
