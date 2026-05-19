@@ -465,6 +465,42 @@ main {
   flex: 1;
 }
 
+.filter-search-mini {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.45rem 0.85rem;
+  background: #f8fafc;
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+  font-size: 0.8rem;
+  color: #475569;
+  transition: all 0.2s;
+  min-width: 220px;
+}
+
+.filter-search-mini:focus-within {
+  background: white;
+  border-color: var(--accent-tertiary);
+  box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+}
+
+.filter-search-mini input {
+  flex: 1;
+  border: none;
+  outline: none;
+  background: transparent;
+  font: inherit;
+  color: inherit;
+  font-weight: 600;
+  min-width: 0;
+}
+
+.filter-search-mini input::placeholder {
+  color: #94a3b8;
+  font-weight: 500;
+}
+
 /* Premium Multi-Select Filters */
 .filter-select-mini {
   position: relative;

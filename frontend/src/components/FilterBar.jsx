@@ -102,10 +102,19 @@ export const FilterBar = ({ filters, setFilters, projects, selectedProject, setS
   const projectOptions = [{ value: '', label: 'Todos los Proyectos' }, ...projects.map(p => ({ value: p.name, label: p.name }))];
   return (
     <div className="filter-row-compact">
+      <div className="filter-search-mini">
+        <Search size={14} />
+        <input
+          type="text"
+          placeholder="Buscar (ID, título, paquete)…"
+          value={filters.search || ''}
+          onChange={(e) => setFilters({ ...filters, search: e.target.value })}
+        />
+      </div>
       <SingleSelect label="Proyecto" icon={Box} options={projectOptions} selected={selectedProject} onChange={setSelectedProject} />
       <MultiSelect label="Estado" icon={Filter} options={statusOptions} selected={filters.statuses || []} onChange={(s) => setFilters({...filters, statuses: s})} />
       <MultiSelect label="Versión" icon={Tag} options={versionOptions} selected={filters.versions || []} onChange={(v) => setFilters({...filters, versions: v})} searchable={true} />
-      
+
       {corruptCount > 0 && (
         <button 
           className={`filter-btn-check ${filters.corruptOnly ? 'active' : ''}`}
