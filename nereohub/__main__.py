@@ -1,10 +1,16 @@
 """Entry point: python -m nereohub or nereohub command."""
+import os
+
 import uvicorn
+
 from .api import create_app
+
 
 def main():
     app = create_app()
-    uvicorn.run(app, host="0.0.0.0", port=8888)
+    port = int(os.environ.get("NEREOHUB_PORT", "8888"))
+    uvicorn.run(app, host="0.0.0.0", port=port)
+
 
 if __name__ == "__main__":
     main()
