@@ -2,6 +2,10 @@ import React from 'react';
 import { DragDropContext, Droppable, Draggable } from '@hello-pangea/dnd';
 import { TaskCard } from './TaskCard';
 
+const NO_VERSION_LABEL = 'Sin versión';
+const isEmptyVersion = (v) => v == null || v === '';
+const versionLabel = (v) => (isEmptyVersion(v) ? NO_VERSION_LABEL : v);
+
 export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backlogOpen, showDetails, allVersions: passedAllVersions }) => {
   const allFilteredItems = React.useMemo(() => {
     const rawList = [...data.backlog, ...data.anomalies, ...data.masters];
@@ -27,14 +31,24 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
   const allVersions = React.useMemo(() => {
     if (passedAllVersions) return passedAllVersions;
     const list = new Set();
+    let hasEmpty = false;
     [...data.backlog, ...data.anomalies, ...data.masters].forEach(item => {
-      if (item.version && item.version.toLowerCase() !== 'backlog') list.add(item.version);
+      const v = item.version;
+      if (isEmptyVersion(v)) {
+        hasEmpty = true;
+      } else if (String(v).toLowerCase() !== 'backlog') {
+        list.add(v);
+      }
     });
-    return Array.from(list).sort();
+    const sorted = Array.from(list).sort();
+    return hasEmpty ? ['', ...sorted] : sorted;
   }, [data, passedAllVersions]);
 
+  const getVersionTasks = (v) =>
+    allFilteredItems.filter(t => (isEmptyVersion(v) ? isEmptyVersion(t.version) : t.version === v));
+
   const versions = React.useMemo(() => {
-    return allVersions.filter(v => allFilteredItems.some(t => t.version === v));
+    return allVersions.filter(v => getVersionTasks(v).length > 0);
   }, [allVersions, allFilteredItems]);
 
   const onDragEnd = (result) => {
@@ -120,8 +134,6 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
     onUpdate(id, updates, projectId);
   };
 
-  const getVersionTasks = (v) => allFilteredItems.filter(t => t.version === v);
-
   const maxColsPerVersion = React.useMemo(() => {
     if (versions.length === 1) return 3;
     return 1;
@@ -152,14 +164,15 @@ export const PlanView = ({ data, projects, onUpdate, onOpen, applyFilters, backl
                 {versions.map(v => {
                   const tasks = getVersionTasks(v).sort((a,b) => (a.weight || 100) - (b.weight || 100));
                   const numCols = Math.min(maxColsPerVersion, Math.max(1, Math.ceil(tasks.length / 4)));
-                  
+
                   // Split tasks into numCols (round-robin)
                   const colGroups = Array.from({ length: numCols }, (_, i) => tasks.filter((_, idx) => idx % numCols === i));
-                  
+
+                  const colKey = isEmptyVersion(v) ? '__no_version__' : v;
                   return (
-                    <div key={v} className="plan-column ver-col-compact version-group-unified" style={{ width: `calc(${numCols} * 300px + ${numCols - 1} * 1rem + 2.8rem)` }}>
+                    <div key={colKey} className={`plan-column ver-col-compact version-group-unified ${isEmptyVersion(v) ? 'no-version' : ''}`} style={{ width: `calc(${numCols} * 300px + ${numCols - 1} * 1rem + 2.8rem)` }}>
                       <div className="column-header-compact">
-                        <h4>{v}</h4>
+                        <h4>{versionLabel(v)}</h4>
                         <span className="count-badge">{tasks.length}</span>
                       </div>
                       <div className="version-multi-columns-content">

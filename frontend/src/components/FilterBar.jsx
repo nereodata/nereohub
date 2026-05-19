@@ -88,8 +88,16 @@ export const FilterBar = ({ filters, setFilters, projects, selectedProject, setS
 
   const versionOptions = React.useMemo(() => {
     const versions = new Set();
-    [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => { if (t.version && t.version !== 'backlog') versions.add(t.version); });
-    return Array.from(versions).map(v => ({ value: v, label: v })).sort((a,b) => a.label.localeCompare(b.label));
+    let hasEmpty = false;
+    [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
+      if (t.version == null || t.version === '') {
+        hasEmpty = true;
+      } else if (t.version !== 'backlog') {
+        versions.add(t.version);
+      }
+    });
+    const opts = Array.from(versions).map(v => ({ value: v, label: v })).sort((a,b) => a.label.localeCompare(b.label));
+    return hasEmpty ? [...opts, { value: '', label: 'Sin versión' }] : opts;
   }, [data]);
   const projectOptions = [{ value: '', label: 'Todos los Proyectos' }, ...projects.map(p => ({ value: p.name, label: p.name }))];
   return (

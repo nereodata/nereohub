@@ -70,11 +70,18 @@ function App() {
       
       if (!hasSavedVersions) {
         const allVers = new Set();
+        let hasEmpty = false;
         [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
-          if (t.version && t.version !== 'backlog') allVers.add(t.version);
+          if (t.version == null || t.version === '') {
+            hasEmpty = true;
+          } else if (t.version !== 'backlog') {
+            allVers.add(t.version);
+          }
         });
-        if (allVers.size > 0) {
-          setFilters(prev => ({...prev, versions: Array.from(allVers)}));
+        const list = Array.from(allVers);
+        if (hasEmpty) list.push('');
+        if (list.length > 0) {
+          setFilters(prev => ({...prev, versions: list}));
         }
       }
     }
@@ -181,8 +188,13 @@ function App() {
 
     // 6. Version Filter
     if (filters.versions && filters.versions.length > 0) {
-       const v = item.version || 'backlog';
-       if (v !== 'backlog' && !filters.versions.includes(v)) return false;
+       if (item.version == null || item.version === '') {
+         if (!filters.versions.includes('')) return false;
+       } else {
+         const v = String(item.version);
+         if (v.toLowerCase() === 'backlog') return true;
+         if (!filters.versions.includes(v)) return false;
+       }
     }
     
     return true;
@@ -202,10 +214,16 @@ function App() {
 
   const allVersions = useMemo(() => {
     const v = new Set();
+    let hasEmpty = false;
     [...data.backlog, ...data.anomalies, ...data.masters].forEach(t => {
-      if (t.version && t.version !== 'backlog') v.add(t.version);
+      if (t.version == null || t.version === '') {
+        hasEmpty = true;
+      } else if (t.version !== 'backlog') {
+        v.add(t.version);
+      }
     });
-    return Array.from(v).sort();
+    const sorted = Array.from(v).sort();
+    return hasEmpty ? ['', ...sorted] : sorted;
   }, [data]);
 
   const listItems = useMemo(() => {
