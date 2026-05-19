@@ -23,7 +23,38 @@ python -m nereohub
 
 Abre en el navegador: **http://localhost:8888**
 
+El puerto por defecto es `8888`. Puedes cambiarlo con `NEREOHUB_PORT`:
+
+```bash
+NEREOHUB_PORT=8889 python -m nereohub
+```
+
+### Script de instalación y lanzamiento (Linux/WSL)
+
+Como alternativa al flujo manual, `scripts/nereohub.sh` crea un venv local (`.venv-wsl/`) e instala el proyecto la primera vez, y en ejecuciones posteriores sólo lanza la app:
+
+```bash
+./scripts/nereohub.sh
+```
+
+Variables de entorno reconocidas:
+
+- `NEREOHUB_PORT` — puerto HTTP (por defecto `8889`, para convivir con una instancia Windows en `8888`).
+- `NEREOHUB_VENV` — ruta del venv (por defecto `.venv-wsl/` dentro del repo).
+
 La primera vez no habrá proyectos configurados: usa **Gestionar proyectos** en el menú lateral para añadir la ruta raíz de cada proyecto.
+
+### Frontend: compilación bajo demanda
+
+El frontend (React + Vite) **no se versiona compilado**: `nereohub/static/assets/` está en `.gitignore`. El script `scripts/nereohub.sh` detecta su ausencia y lanza `npm install && npm run build` automáticamente la primera vez (requiere Node.js 18+).
+
+Si trabajas sobre el frontend, recompila manualmente:
+
+```bash
+cd frontend && npm run build && cp -r dist/assets ../nereohub/static/ && cp dist/index.html ../nereohub/static/index.html
+```
+
+**Instalación para no-devs:** la ruta prevista a futuro es un wheel o un ejecutable PyInstaller con los assets pre-compilados embebidos (ver [Build con PyInstaller](#build-con-pyinstaller)), de modo que el usuario final no necesite Node ni npm. El pipeline de release automatizado está pendiente.
 
 ## Pruebas
 
