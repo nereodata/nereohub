@@ -1,11 +1,13 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { marked } from 'marked';
-import { X, Save, Edit3, Eye, Tag, Hash, Package, Activity, Clock, Target } from 'lucide-react';
+import { X, Save, Edit3, Eye, Tag, Hash, Package, Activity, Clock, Target, ArrowUpRight, GitBranch } from 'lucide-react';
+import { wrapTaskIds, extractTaskIdFromText } from '../utils/taskLinks';
 
-export const Modal = ({ isOpen, item, onClose, onRefreshData }) => {
+export const Modal = ({ isOpen, item, onClose, onRefreshData, onOpenById, knownIds, parentItem, children = [] }) => {
   const [content, setContent] = useState('');
   const [isEditing, setIsEditing] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [showChildren, setShowChildren] = useState(false);
 
   useEffect(() => {
     if (isOpen && item) {
@@ -43,6 +45,32 @@ export const Modal = ({ isOpen, item, onClose, onRefreshData }) => {
       alert('No se pudo guardar el contenido. Reintenta por favor.');
     } finally {
       setLoading(false); // Quitamos estado de carga
+    }
+  };
+
+  const renderedHtml = useMemo(() => {
+    if (!content) return '';
+    const html = marked.parse(content.replace(/^---\s*\n[\s\S]*?\n---\s*\n/, ''));
+    return wrapTaskIds(html, knownIds);
+  }, [content, knownIds]);
+
+  const handleContentClick = (e) => {
+    if (!onOpenById) return;
+    const tagged = e.target.closest('[data-task-id]');
+    if (tagged) {
+      e.preventDefault();
+      e.stopPropagation();
+      onOpenById(tagged.dataset.taskId);
+      return;
+    }
+    const anchor = e.target.closest('a');
+    if (anchor) {
+      const id = extractTaskIdFromText(anchor.textContent);
+      if (id && (!knownIds || knownIds.has(id))) {
+        e.preventDefault();
+        e.stopPropagation();
+        onOpenById(id);
+      }
     }
   };
 
@@ -104,6 +132,53 @@ export const Modal = ({ isOpen, item, onClose, onRefreshData }) => {
           </div>
         )}
 
+        {item && (parentItem || children.length > 0) && (
+          <div className="task-hierarchy-bar">
+            {parentItem && (
+              <button
+                type="button"
+                className="task-hierarchy-link"
+                onClick={() => onOpenById && onOpenById(parentItem.id)}
+                title={`Abrir tarea maestra ${parentItem.id}`}
+              >
+                <ArrowUpRight size={12} />
+                <span className="hierarchy-label">MAESTRA</span>
+                <span className="hierarchy-id">{parentItem.id}</span>
+              </button>
+            )}
+            {children.length > 0 && (
+              <div className="task-hierarchy-children">
+                <button
+                  type="button"
+                  className="task-hierarchy-toggle"
+                  onClick={() => setShowChildren(v => !v)}
+                  title="Mostrar/ocultar tareas hijas"
+                >
+                  <GitBranch size={12} />
+                  <span className="hierarchy-label">HIJAS</span>
+                  <span className="hierarchy-count">{children.length}</span>
+                </button>
+                {showChildren && (
+                  <div className="task-hierarchy-children-list">
+                    {children.map(child => (
+                      <button
+                        key={child.id}
+                        type="button"
+                        className="task-hierarchy-link"
+                        onClick={() => onOpenById && onOpenById(child.id)}
+                        title={`Abrir ${child.id}`}
+                      >
+                        <span className="hierarchy-id">{child.id}</span>
+                        <span className="hierarchy-child-title">{child.title}</span>
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        )}
+
         <div className="modal-body-scroll">
           
           {loading ? (
@@ -111,7 +186,7 @@ export const Modal = ({ isOpen, item, onClose, onRefreshData }) => {
           ) : isEditing ? (
             <textarea className="task-edit-textarea" value={content} onChange={e => setContent(e.target.value)} placeholder="Escribe el contenido en Markdown..." autoFocus />
           ) : (
-            <article className="task-detail-rendering" dangerouslySetInnerHTML={{ __html: marked.parse(content.replace(/^---\s*\n[\s\S]*?\n---\s*\n/, '')) }} />
+            <article className="task-detail-rendering" onClick={handleContentClick} dangerouslySetInnerHTML={{ __html: renderedHtml }} />
           )}
         </div>
 

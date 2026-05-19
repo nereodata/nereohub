@@ -67,7 +67,7 @@ function App() {
       // Check if we already have a saved filter state with versions in localStorage
       const saved = localStorage.getItem(STORAGE_KEY)
       const hasSavedVersions = saved && JSON.parse(saved).filters?.versions?.length > 0
-      
+
       if (!hasSavedVersions) {
         const allVers = new Set();
         let hasEmpty = false;
@@ -196,7 +196,7 @@ function App() {
          if (!filters.versions.includes(v)) return false;
        }
     }
-    
+
     return true;
   }, [filters, selectedProject]);
 
@@ -211,6 +211,46 @@ function App() {
     }
     return source.filter(t => t.is_corrupt && applyFilters(t, true)).length;
   }, [data, applyFilters, currentTab]);
+
+  const allItems = useMemo(
+    () => [...data.backlog, ...data.anomalies, ...data.masters],
+    [data]
+  );
+
+  const byId = useMemo(() => {
+    const map = new Map();
+    allItems.forEach(it => { if (it && it.id) map.set(it.id, it); });
+    return map;
+  }, [allItems]);
+
+  const knownIds = useMemo(() => new Set(byId.keys()), [byId]);
+
+  const childrenByParent = useMemo(() => {
+    const map = new Map();
+    allItems.forEach(it => {
+      if (!it || !it.parent_id) return;
+      if (!map.has(it.parent_id)) map.set(it.parent_id, []);
+      map.get(it.parent_id).push(it);
+    });
+    return map;
+  }, [allItems]);
+
+  const selectedParent = useMemo(() => {
+    if (!selectedTask || !selectedTask.parent_id) return null;
+    return byId.get(selectedTask.parent_id) || null;
+  }, [selectedTask, byId]);
+
+  const selectedChildren = useMemo(() => {
+    if (!selectedTask) return [];
+    return childrenByParent.get(selectedTask.id) || [];
+  }, [selectedTask, childrenByParent]);
+
+  const openTaskById = useCallback((id) => {
+    const found = byId.get(id);
+    if (!found) return;
+    setSelectedTask(found);
+    setModalOpen(true);
+  }, [byId]);
 
   const allVersions = useMemo(() => {
     const v = new Set();
@@ -272,7 +312,16 @@ function App() {
         )}
       </main>
 
-      <Modal isOpen={modalOpen} item={selectedTask} onClose={() => setModalOpen(false)} onRefreshData={fetchData} />
+      <Modal
+        isOpen={modalOpen}
+        item={selectedTask}
+        onClose={() => setModalOpen(false)}
+        onRefreshData={fetchData}
+        onOpenById={openTaskById}
+        knownIds={knownIds}
+        parentItem={selectedParent}
+        children={selectedChildren}
+      />
       <ProjectManager 
         projects={data.projects} 
         isOpen={projectMgrOpen} 

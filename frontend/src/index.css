@@ -2048,4 +2048,142 @@ main {
 .metadata-value-clean.status-badge.completed { background: rgba(52, 211, 153, 0.1); color: #059669; }
 .metadata-value-clean.status-badge.cancelled { background: rgba(148, 163, 184, 0.1); color: #475569; }
 
+/* --- Task Hierarchy Bar (Master / Children navigation) --- */
+.task-hierarchy-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 1.75rem;
+  background: #fafbfd;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.task-hierarchy-link,
+.task-hierarchy-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.65rem;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #334155;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  font-family: inherit;
+}
+
+.task-hierarchy-link:hover,
+.task-hierarchy-toggle:hover {
+  border-color: var(--accent-tertiary, #60a5fa);
+  background: #f8fafc;
+  color: #1e293b;
+}
+
+.task-hierarchy-link .hierarchy-label,
+.task-hierarchy-toggle .hierarchy-label {
+  color: #94a3b8;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 0.55rem;
+}
+
+.task-hierarchy-link .hierarchy-id {
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.7rem;
+  color: #1e293b;
+}
+
+.task-hierarchy-toggle .hierarchy-count {
+  background: var(--accent-tertiary, #60a5fa);
+  color: white;
+  font-size: 0.6rem;
+  padding: 0.1rem 0.35rem;
+  border-radius: 999px;
+  min-width: 18px;
+  text-align: center;
+}
+
+.task-hierarchy-children {
+  display: inline-flex;
+  position: relative;
+}
+
+.task-hierarchy-children-list {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: white;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  padding: 0.35rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  min-width: 280px;
+  max-height: 320px;
+  overflow-y: auto;
+  z-index: 30;
+}
+
+.task-hierarchy-children-list .task-hierarchy-link {
+  justify-content: flex-start;
+  width: 100%;
+  border: none;
+  background: transparent;
+}
+
+.task-hierarchy-children-list .task-hierarchy-link:hover {
+  background: #f1f5f9;
+}
+
+.task-hierarchy-children-list .hierarchy-child-title {
+  color: #64748b;
+  font-weight: 500;
+  font-size: 0.68rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 220px;
+}
+
+/* --- Inline task links inside rendered markdown --- */
+.task-detail-rendering .task-link {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.05rem 0.4rem;
+  background: rgba(59, 130, 246, 0.08);
+  border: 1px solid rgba(59, 130, 246, 0.2);
+  border-radius: 4px;
+  color: #2563eb;
+  font-family: 'JetBrains Mono', 'Fira Code', monospace;
+  font-size: 0.85em;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.12s ease;
+}
+
+.task-detail-rendering .task-link:hover {
+  background: rgba(59, 130, 246, 0.16);
+  border-color: rgba(59, 130, 246, 0.4);
+}
+
+.task-detail-rendering .task-link-broken {
+  background: rgba(148, 163, 184, 0.08);
+  border-color: rgba(148, 163, 184, 0.25);
+  color: #64748b;
+  cursor: not-allowed;
+  text-decoration: line-through;
+}
+
+.task-detail-rendering .task-link-broken:hover {
+  background: rgba(148, 163, 184, 0.08);
+  border-color: rgba(148, 163, 184, 0.25);
+}
+
 .corrupt-tooltip-portal { background: #1e293b; color: white; padding: 0.85rem 1.25rem; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.1); min-width: 240px; max-width: 350px; transition: all 0.2s ease; font-family: 'Inter', sans-serif; z-index: 2147483647 !important; border: 1px solid rgba(255,255,255,0.1); }
