@@ -8,6 +8,7 @@ build/
 # Python
 __pycache__/
 *.py[cod]
+.venv-wsl/
 .pytest_cache/
 .coverage
 htmlcov/
