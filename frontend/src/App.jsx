@@ -245,11 +245,49 @@ function App() {
     return childrenByParent.get(selectedTask.id) || [];
   }, [selectedTask, childrenByParent]);
 
+  const openTaskCard = useCallback((item) => {
+    if (!item) return;
+    const currentDepth = window.history.state?.nhModalDepth || 0;
+    window.history.pushState(
+      { nhModalTaskId: item.id, nhModalDepth: currentDepth + 1 },
+      ''
+    );
+    setSelectedTask(item);
+    setModalOpen(true);
+  }, []);
+
   const openTaskById = useCallback((id) => {
     const found = byId.get(id);
     if (!found) return;
-    setSelectedTask(found);
-    setModalOpen(true);
+    openTaskCard(found);
+  }, [byId, openTaskCard]);
+
+  const closeModal = useCallback(() => {
+    const depth = window.history.state?.nhModalDepth || 0;
+    if (depth > 0) {
+      window.history.go(-depth);
+    } else {
+      setModalOpen(false);
+      setSelectedTask(null);
+    }
+  }, []);
+
+  useEffect(() => {
+    const onPop = (e) => {
+      const taskId = e.state?.nhModalTaskId;
+      if (taskId) {
+        const item = byId.get(taskId);
+        if (item) {
+          setSelectedTask(item);
+          setModalOpen(true);
+          return;
+        }
+      }
+      setSelectedTask(null);
+      setModalOpen(false);
+    };
+    window.addEventListener('popstate', onPop);
+    return () => window.removeEventListener('popstate', onPop);
   }, [byId]);
 
   const allVersions = useMemo(() => {
@@ -297,12 +335,12 @@ function App() {
         ) : (
           <div className="view-content-clean">
             {currentTab === 'dashboard' && <Dashboard stats={data.stats} />}
-            {currentTab === 'anomalies' && <ListView items={listItems} onOpen={(t) => { setSelectedTask(t); setModalOpen(true); }} onUpdate={updateTask} projects={data.projects} showDetails={showDetails} allVersions={allVersions} />}
-            {currentTab === 'backlog' && <ListView items={listItems} onOpen={(t) => { setSelectedTask(t); setModalOpen(true); }} onUpdate={updateTask} projects={data.projects} showDetails={showDetails} allVersions={allVersions} />}
+            {currentTab === 'anomalies' && <ListView items={listItems} onOpen={openTaskCard} onUpdate={updateTask} projects={data.projects} showDetails={showDetails} allVersions={allVersions} />}
+            {currentTab === 'backlog' && <ListView items={listItems} onOpen={openTaskCard} onUpdate={updateTask} projects={data.projects} showDetails={showDetails} allVersions={allVersions} />}
             {currentTab === 'plan' && (
-              <PlanView 
-                data={data} projects={data.projects} onUpdate={updateTask} 
-                onOpen={(t) => { setSelectedTask(t); setModalOpen(true); }}
+              <PlanView
+                data={data} projects={data.projects} onUpdate={updateTask}
+                onOpen={openTaskCard}
                 applyFilters={applyFilters} showDetails={showDetails}
                 backlogOpen={backlogOpen}
                 allVersions={allVersions}
@@ -315,7 +353,7 @@ function App() {
       <Modal
         isOpen={modalOpen}
         item={selectedTask}
-        onClose={() => setModalOpen(false)}
+        onClose={closeModal}
         onRefreshData={fetchData}
         onOpenById={openTaskById}
         knownIds={knownIds}
