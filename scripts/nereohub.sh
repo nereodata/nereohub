@@ -15,7 +15,7 @@ if [ ! -x "$VENV_DIR/bin/python" ]; then
   "$VENV_DIR/bin/python" -m pip install -e .
 fi
 
-if [ ! -d "$STATIC_DIR/assets" ]; then
+if [ ! -f "$STATIC_DIR/assets/index.js" ] || [ ! -f "$STATIC_DIR/assets/index.css" ]; then
   if ! command -v npm >/dev/null 2>&1; then
     cat >&2 <<'EOF'
 [nereohub] Faltan los assets compilados del frontend (nereohub/static/assets/)
@@ -27,9 +27,10 @@ Opciones:
 EOF
     exit 1
   fi
-  echo "[nereohub] Compilando frontend por primera vez..."
+  echo "[nereohub] Compilando frontend..."
   ( cd "$FRONTEND_DIR" && npm install && npm run build )
   mkdir -p "$STATIC_DIR"
+  rm -rf "$STATIC_DIR/assets"
   cp -r "$FRONTEND_DIR/dist/assets" "$STATIC_DIR/"
   cp "$FRONTEND_DIR/dist/index.html" "$STATIC_DIR/index.html"
 fi
