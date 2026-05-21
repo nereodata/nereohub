@@ -51,11 +51,11 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             json.dump(order_data, f, indent=2)
 
     @app.get("/api/projects")
-    async def api_list_projects():
+    def api_list_projects():
         return {"projects": config.get_projects()}
 
     @app.post("/api/projects")
-    async def api_add_project(body: dict = Body(...)):
+    def api_add_project(body: dict = Body(...)):
         name = body.get("name") or ""
         root = body.get("root") or ""
         color = body.get("color") or ""
@@ -70,7 +70,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             raise HTTPException(status_code=400, detail=str(e))
 
     @app.put("/api/projects")
-    async def api_update_project(body: dict = Body(...)):
+    def api_update_project(body: dict = Body(...)):
         old_root = body.get("old_root") or ""
         if not old_root:
             raise HTTPException(status_code=400, detail="Falta old_root.")
@@ -86,7 +86,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             raise HTTPException(status_code=400, detail=str(e))
 
     @app.delete("/api/projects")
-    async def api_delete_project(
+    def api_delete_project(
         root: str = Query(..., description="Project root path to remove"),
     ):
         try:
@@ -96,7 +96,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             raise HTTPException(status_code=400, detail=str(e))
 
     @app.get("/api/data")
-    async def get_all_data():
+    def get_all_data():
         projects = config.get_projects()
         data = {
             "projects": [
@@ -235,7 +235,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         return data
 
     @app.get("/api/content")
-    async def get_content(project_id: str = Query(...), path: str = Query(...)):
+    def get_content(project_id: str = Query(...), path: str = Query(...)):
         projects = config.get_projects()
         root = None
         for p in projects:
@@ -263,7 +263,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         raise HTTPException(status_code=404, detail="File not found")
 
     @app.post("/api/order")
-    async def update_order(order_data: dict = Body(...)):
+    def update_order(order_data: dict = Body(...)):
         current = load_custom_order()
         for project_id, indices in order_data.items():
             if project_id not in current:
@@ -273,7 +273,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         return {"status": "ok"}
 
     @app.post("/api/export-pdf")
-    async def export_pdf(tasks: list = Body(...)):
+    def export_pdf(tasks: list = Body(...)):
         try:
             enriched = []
             projects = {p["name"]: Path(p["root"]) for p in config.get_projects()}
@@ -328,7 +328,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         return out
 
     @app.get("/api/plan")
-    async def get_plan():
+    def get_plan():
         projects = config.get_projects()
         plans = []
         for proj in projects:
@@ -405,9 +405,8 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
                 plans.append(parsed)
         return plans
 
-
     @app.post("/api/task")
-    async def api_create_task(body: dict = Body(...)):
+    def api_create_task(body: dict = Body(...)):
         project_id = body.get("project_id") or body.get("project")
         task_id = body.get("id")
         title = body.get("title") or "Nueva Tarea"
@@ -452,7 +451,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
         return {"status": "ok", "id": task_id}
 
     @app.post("/api/save-content")
-    async def save_content(body: dict = Body(...)):
+    def save_content(body: dict = Body(...)):
         project_id = body.get("project_id") or body.get("project")
         task_id = body.get("id")
         content = body.get("content")
@@ -491,7 +490,7 @@ def create_app(static_dir: Optional[Path] = None) -> FastAPI:
             raise HTTPException(status_code=500, detail=str(e))
 
     @app.post("/api/update_task")
-    async def update_task(task_data: dict = Body(...)):
+    def update_task(task_data: dict = Body(...)):
         task_id = task_data.get("id")
         project_id = task_data.get("project_id") or task_data.get("project")
         if not task_id:

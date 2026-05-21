@@ -2,6 +2,8 @@ from pathlib import Path
 from typing import Optional
 from .config import load_project_task_config
 
+from functools import lru_cache
+
 TASK_PATTERNS = ["T-*.md", "B-*.md", "BUG-*.md"]
 
 
@@ -50,6 +52,7 @@ def apply_folders(base_path: Path, folders: dict, label: str) -> list:
     return res
 
 
+@lru_cache(maxsize=32)
 def get_plan_search_dirs(root: Path) -> list:
     """
     Discover plan directories from project root.
